@@ -1,0 +1,225 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
+apply plugin: 'com.getkeepsafe.dexcount'
+apply plugin: 'com.github.ben-manes.versions'
+apply plugin: 'com.vanniktech.android.junit.jacoco'
+
+androidExtensions {
+    experimental = true
+}
+
+ext {
+
+    secrets = [
+            // define your app secrets, for example:
+            // hockeyAppId: keyProperty("HOCKEY_APP_ID")
+    ]
+}
+
+android {
+    compileSdkVersion 28
+
+    defaultConfig {
+        applicationId "co.netguru.android.arlocalizeralternative"
+        minSdkVersion 21
+        targetSdkVersion 28
+        versionCode isBitrise ? Integer.parseInt(bitrise.io.buildNumber) : 1
+        versionName '0.1.0'
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        debug {
+            versionNameSuffix "-DEBUG"
+            applicationIdSuffix ".debug"
+            testCoverageEnabled true
+            debuggable true
+            minifyEnabled true
+            shrinkResources false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'),
+                    'proguard-rules.pro',
+                    'proguard-rules-test.pro'
+        }
+        release {
+            debuggable false
+            minifyEnabled true
+            shrinkResources true
+            zipAlignEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'),
+                    'proguard-rules.pro'
+        }
+    }
+
+    flavorDimensions "api"
+
+    productFlavors {
+        mock {
+            versionNameSuffix "-MOCK"
+            applicationIdSuffix ".mock"
+            dimension "api"
+
+            // put your secrets in the BuildConfig.java class, for example:
+            // buildConfigField 'String', 'HOCKEY_APP_ID', "\"${secrets.hockeyAppId}\""
+        }
+        production {
+            dimension "api"
+            // inherit
+        }
+    }
+
+    variantFilter { variant ->
+        def buildName = variant.buildType.name
+        def flavorName = variant.getFlavors().get(0).name
+        // remove unnecessary variants
+        ['release'].each {
+            if (buildName == it) {
+                ['mock'].each {
+                    if (flavorName == it) {
+                        variant.setIgnore(true)
+                    }
+                }
+            }
+        }
+    }
+
+    // Always show the result of every unit test, even if it passes.
+    testOptions.unitTests.all {
+        testLogging {
+            events 'passed', 'skipped', 'failed', 'standardOut', 'standardError'
+        }
+    }
+
+    packagingOptions {
+        exclude 'META-INF/services/javax.annotation.processing.Processor'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+    }
+
+    sourceSets.all {
+        it.java.srcDir "src/$it.name/kotlin"
+    }
+
+    junitJacoco {
+        jacocoVersion = '0.7.9'
+        excludes = ['android/databinding/**/*.class',
+                    '**/android/databinding/*Binding.class',
+                    '**/BR.*',
+                    '**/R.class',
+                    '**/R$*.class',
+                    '**/BuildConfig.*',
+                    '**/Manifest*.*',
+                    '**/*$ViewInjector*.*',
+                    '**/*$ViewBinder*.*',
+                    '**/*_MembersInjector.class',
+                    '**/Dagger*Component.class',
+                    '**/Dagger*Component$Builder.class',
+                    '**/*Module_*Factory.class',
+                    '**/AutoValue_*.*',
+                    '**/*JavascriptBridge.class',
+                    '**/Lambda$*.class',
+                    '**/Lambda.class',
+                    '**/*Lambda.class',
+                    '**/*Lambda*.class']
+    }
+
+    lintOptions {
+        abortOnError false
+        xmlReport true
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+configurations {
+    dependencyUpdates.resolutionStrategy = {
+        componentSelection { rules ->
+            rules.all { ComponentSelection selection ->
+                boolean rejected = ['alpha', 'beta', 'rc', 'cr', 'm'].any { qualifier ->
+                    selection.candidate.version ==~ /(?i).*[.-]${qualifier}[.\d-]*/
+                }
+                if (rejected) {
+                    selection.reject('Release candidate')
+                }
+            }
+        }
+    }
+}
+
+dependencies {
+
+    //Kotlin
+    implementation libs.kotlin
+
+    // Anko Commons
+    implementation libs.ankoCommons
+    implementation libs.ankoCommonsSupportV7
+    implementation libs.ankoCommonsSupportV4
+
+    // Support
+    implementation libs.appCompat
+    implementation libs.recyclerView
+    implementation libs.materialComponents
+    implementation libs.constraintLayout
+
+    // ViewModels LiveData
+    implementation libs.lifecycleExtensions
+    implementation libs.ktxViewModel
+
+    // KTX
+    implementation libs.ktx
+    implementation libs.ktxFragment
+
+    // Dagger
+    implementation libs.dagger
+    implementation libs.daggerAndroid
+    implementation libs.daggerAndroidSupport
+    kapt proc.dagger
+    kapt proc.daggerAndroid
+    compileOnly proc.javaxAnnotation
+
+    //RxJava
+    implementation libs.rxJava2
+    implementation(libs.rxKotlin2) {
+        exclude module: 'rxjava'
+        exclude module: 'kotlin-stdlib'
+    }
+    implementation(libs.rxAndroid2) {
+        exclude module: 'rxjava'
+    }
+
+    // OkHttp + Retrofit
+    implementation libs.okHttp
+    implementation libs.okHttpLoggingInterceptor
+    implementation libs.retrofit
+    implementation libs.retrofitGsonConverter
+    implementation libs.retrofitRxJava2Adapter
+
+    // Timber
+    implementation libs.timber
+
+    //Location
+    implementation libs.playServicesLocation
+    implementation libs.rxLocation
+
+    //Camera
+    implementation libs.cameraXCore
+    implementation libs.camera2
+
+    // Stetho
+    debugImplementation libs.stetho
+
+    // LeakCanary
+    debugImplementation libs.leakCanary
+
+    // Unit testing
+    testImplementation test.junit
+    testImplementation test.mockito
+    testImplementation test.mockitoKotlin
+    testImplementation test.archTesting
+}

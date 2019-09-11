@@ -1,0 +1,46 @@
+import java.nio.file.Files
+
+private static def readDetektXmlContent(File file) {
+    return file.readLines()
+    // drop xml version and checkstyle line
+            .drop(2)
+    //drop checkstyle closing
+            .dropRight(1)
+}
+
+tasks.register('detektMergeExistingReports') {
+    group = 'verification'
+    description = 'Merges exisiting detekt reports from x/build/reports/detekt/detekt.xml'
+    // todo this can be removed and replaced once https://github.com/arturbosch/detekt/issues/1295 is resolved
+    doFirst {
+        println("Starting detekt reports merge")
+        def startOfFile = ["""<?xml version="1.0" encoding="utf-8"?>""", """<checkstyle version="4.3">"""]
+        def endOfFile = ["""</checkstyle>"""]
+        def reportFilesSet = fileTree('.')
+                .matching { include '**/build/reports/' }
+                .filter { it.name.matches("detekt.xml") }
+                .files
+
+        def contentLines = reportFilesSet.asList()
+                .collect { readDetektXmlContent(it) }
+                .flatten()
+        def result = (startOfFile + contentLines + endOfFile).join(System.lineSeparator())
+
+        def outputDirectory = new File("build/reports/")
+        outputDirectory.mkdirs()
+        def outputFile = new File(outputDirectory, "detektMerged.xml")
+        outputFile.createNewFile()
+        Files.write(outputFile.toPath(), result.bytes)
+        println("Successfully generated Checkstyle XML merged report at ${outputFile.absolutePath}")
+    }
+}
+
+tasks.register('detektGenerateMergedReport') {
+    group = 'verification'
+    description = 'Runs detect analysis across all modules and merges all found reports'
+    def allModulesDetektTasks = [tasks.detekt] + subprojects.tasks.collect {
+        it.named('detekt').get()
+    }
+    dependsOn allModulesDetektTasks, detektMergeExistingReports
+    shouldRunAfter allModulesDetektTasks
+}

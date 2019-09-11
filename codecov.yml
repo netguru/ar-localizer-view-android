@@ -1,0 +1,59 @@
+codecov:
+  ci:
+    - bitrise
+
+coverage:
+  precision: 2
+  round: down
+  range: "0...100"
+
+  status:
+    project:
+      unit:
+        target: auto
+        threshold: 1%
+        flag: unit
+        flags:
+          - unit
+
+      instrumentation:
+        target: auto
+        threshold: 1%
+        flag: instrumentation
+        flags:
+          - instrumentation
+    patch:
+      unit:
+        flag: unit
+        flags:
+          - unit
+
+      instrumentation:
+        flag: instrumentation
+        flags:
+          - instrumentation
+
+    changes:
+      unit:
+        flag: unit
+        flags:
+          - unit
+
+      instrumentation:
+        flag: instrumentation
+        flags:
+          - instrumentation
+
+  ignore:
+    - mock/*
+    - production/*
+    - androidTest/*
+    - androidTestMock/*
+    - androidTestProduction/*
+
+comment:
+  layout: "header, diff, changes, sunburst, uncovered"
+  behavior: default
+  flags:
+    - unit
+    - instrumentation

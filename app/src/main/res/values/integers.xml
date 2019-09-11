@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="max_edit_text_input_length">10</integer>
+    <integer name="max_text_view_output_length">10</integer>
+</resources>

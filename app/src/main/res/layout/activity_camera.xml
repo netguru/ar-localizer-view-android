@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:padding="@dimen/default_margin"
+        android:layout_width="match_parent" android:layout_height="match_parent"
+        tools:context=".feature.camera.CameraActivity">
+
+    <TextureView
+            android:id="@+id/texture_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/half_screen_guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.5"/>
+
+    <TextView
+            android:id="@+id/current_location_label"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/half_screen_guideline"
+            app:layout_constraintTop_toTopOf="parent"
+            android:textColor="@android:color/white"
+            android:text="@string/current_location_label"/>
+    <TextView
+            android:id="@+id/current_latitude_label"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/current_location_label"
+            android:textColor="@android:color/white"
+            android:text="@string/latitude_label"/>
+
+    <TextView
+            android:id="@+id/current_latitude_value"
+            android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/small_margin"
+            android:maxLength="@integer/max_text_view_output_length"
+            app:layout_constraintStart_toStartOf="@id/current_location_barrier"
+            app:layout_constraintEnd_toEndOf="@id/half_screen_guideline"
+            android:textColor="@android:color/white"
+            app:layout_constraintTop_toBottomOf="@id/current_location_label"/>
+
+    <TextView
+            android:id="@+id/current_longitude_label"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/current_latitude_label"
+            android:textColor="@android:color/white"
+            android:text="@string/longitude_label"/>
+
+    <TextView
+            android:id="@+id/result_azimuth_label"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/half_screen_guideline"
+            app:layout_constraintTop_toBottomOf="@id/current_longitude_label"
+            android:textColor="@android:color/white"
+            android:text="Azimuth between locations"/>
+
+
+    <TextView
+            android:id="@+id/result_azimuth_value"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="@id/half_screen_guideline"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/current_longitude_value"
+            android:textColor="@android:color/white"
+            tools:text="34,56"/>
+
+    <TextView
+            android:id="@+id/current_longitude_value"
+            android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/small_margin"
+            android:maxLength="@integer/max_text_view_output_length"
+            app:layout_constraintStart_toStartOf="@id/current_location_barrier"
+            app:layout_constraintEnd_toEndOf="@id/half_screen_guideline"
+            android:textColor="@android:color/white"
+            app:layout_constraintTop_toBottomOf="@id/current_latitude_label"/>
+
+    <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/current_location_barrier"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:barrierDirection="end"
+            app:constraint_referenced_ids="current_longitude_label, current_latitude_label"/>
+
+    <TextView
+            android:id="@+id/destination_location_label"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="@id/half_screen_guideline"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:textColor="@android:color/white"
+            android:text="@string/destination_location_label"/>
+    <TextView
+            android:id="@+id/destination_latitude_label"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="@id/half_screen_guideline"
+            app:layout_constraintTop_toBottomOf="@id/destination_location_label"
+            android:textColor="@android:color/white"
+            android:text="@string/latitude_label"/>
+
+    <TextView
+            android:id="@+id/destination_latitude_value"
+            android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/small_margin"
+            app:layout_constraintStart_toStartOf="@id/destination_location_barrier"
+            android:maxLength="@integer/max_text_view_output_length"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/destination_location_label"
+            android:textColor="@android:color/white"/>
+
+    <TextView
+            android:id="@+id/destination_longitude_label"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="@id/half_screen_guideline"
+            app:layout_constraintTop_toBottomOf="@id/destination_latitude_label"
+            android:textColor="@android:color/white"
+            android:text="@string/longitude_label"/>
+
+    <TextView
+            android:id="@+id/destination_longitude_value"
+            android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/small_margin"
+            app:layout_constraintStart_toStartOf="@id/destination_location_barrier"
+            android:maxLength="@integer/max_text_view_output_length"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:textColor="@android:color/white"
+            app:layout_constraintTop_toBottomOf="@id/destination_latitude_label"/>
+
+    <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/destination_location_barrier"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:barrierDirection="end"
+            app:constraint_referenced_ids="destination_longitude_label, destination_latitude_label"/>
+
+    <Button android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:id="@+id/set_destination_button"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:text="@string/set_destination_label"/>
+
+    <androidx.constraintlayout.widget.Group
+            android:id="@+id/location_items"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            app:constraint_referenced_ids="current_location_label, current_latitude_label,
+current_latitude_value, current_longitude_label, current_longitude_value, destination_location_label,
+destination_latitude_label, destination_longitude_label, destination_longitude_value" />
+
+    <co.netguru.android.arlocalizeralternative.feature.camera.ARLabelView
+            android:id="@+id/ar_label_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent"
+
+        />
+
+    <androidx.appcompat.widget.AppCompatSeekBar
+            android:id="@+id/low_filter_seekbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toTopOf="@id/set_destination_button"
+            android:layout_marginBottom="20dp"/>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
