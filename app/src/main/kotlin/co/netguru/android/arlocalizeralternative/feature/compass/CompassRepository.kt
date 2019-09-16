@@ -27,9 +27,7 @@ class CompassRepository @Inject constructor(
             .getLocationUpdates()
             .combineLatest(orientationProvider.getSensorUpdates())
             .subscribeBy(
-                onNext = {
-                    val currentLocation = it.first
-                    val currentOrientation = it.second
+                onNext = { (currentLocation, currentOrientation) ->
                     val compassData = CompassData().apply {
                         this.currentLocation = currentLocation
                         this.orientationData = currentOrientation

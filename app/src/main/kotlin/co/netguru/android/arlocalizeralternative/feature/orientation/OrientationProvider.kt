@@ -92,12 +92,10 @@ private val windowManager: WindowManager) {
     }
 
     private fun lowPassDegreesFilter(azimuthRadians: Float): Float {
-        synchronized(this) {
-            lastSin = alpha * lastSin + (1 - alpha) * sin(azimuthRadians)
-            lastCos = alpha * lastCos + (1 - alpha) * cos(azimuthRadians)
+        lastSin = alpha * lastSin + (1 - alpha) * sin(azimuthRadians)
+        lastCos = alpha * lastCos + (1 - alpha) * cos(azimuthRadians)
 
-            return ((Math.toDegrees(atan2(lastSin, lastCos).toDouble()) + 360) % 360).toFloat()
-        }
+        return ((Math.toDegrees(atan2(lastSin, lastCos).toDouble()) + 360) % 360).toFloat()
     }
 
     private fun getAdjustedRotationMatrix(rotationMatrix: FloatArray): FloatArray {

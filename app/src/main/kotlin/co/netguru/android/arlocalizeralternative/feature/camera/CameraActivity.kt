@@ -49,7 +49,7 @@ class CameraActivity : BaseActivity() {
             onDestinationButtonClick()
         }
 
-        if(permissionManager.permissionsGranted()) texture_view.post { startCamera() }
+        if (permissionManager.permissionsGranted()) texture_view.post { startCamera() }
         initLowPassFilterAlphaSeekbar()
     }
 
@@ -87,7 +87,7 @@ class CameraActivity : BaseActivity() {
     }
 
     private fun startCompass() {
-        if(permissionManager.permissionsGranted()) {
+        if (permissionManager.permissionsGranted()) {
             viewModel.viewState.observe(this, Observer { viewState ->
                 when (viewState) {
                     is ViewState.Success<CompassData> -> handleSuccessData(viewState.data)
@@ -95,8 +95,7 @@ class CameraActivity : BaseActivity() {
                 }
             })
             viewModel.startCompass()
-        }
-        else permissionManager.requestPermissions()
+        } else permissionManager.requestPermissions()
     }
 
     private fun handleSuccessData(compassData: CompassData) {
@@ -134,8 +133,11 @@ class CameraActivity : BaseActivity() {
           the button*/
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
             validateDestinationInput(
-                latitudeEditText.text.toString().toDoubleOrNull(), longitudeEditText.text.toString().toDoubleOrNull(),
-                latitudeTextInputLayout, longitudeTextInputLayout, dialog
+                latitudeEditText.text.toString().toDoubleOrNull(),
+                longitudeEditText.text.toString().toDoubleOrNull(),
+                latitudeTextInputLayout,
+                longitudeTextInputLayout,
+                dialog
             )
         }
     }
