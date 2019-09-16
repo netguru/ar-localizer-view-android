@@ -82,7 +82,7 @@ class ARLabelView @JvmOverloads constructor(
 
         }
 
-        distance = "${compassData.distancetoDestination} m"
+        distance = "${compassData.distanceToDestination} m"
         invalidate()
     }
 

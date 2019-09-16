@@ -1,61 +1,68 @@
 package co.netguru.android.arlocalizeralternative.feature.compass
 
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import co.netguru.android.arlocalizeralternative.feature.location.LocationData
 import co.netguru.android.arlocalizeralternative.feature.location.LocationProvider
 import co.netguru.android.arlocalizeralternative.feature.orientation.OrientationProvider
-import io.reactivex.disposables.Disposable
 import javax.inject.Inject
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
 import co.netguru.android.arlocalizeralternative.common.Result
+import io.reactivex.disposables.Disposable
+import io.reactivex.rxkotlin.combineLatest
+import io.reactivex.rxkotlin.subscribeBy
 
 class CompassRepository @Inject constructor(
     private val orientationProvider: OrientationProvider,
-    private val locationProvider: LocationProvider
-) {
+    private val locationProvider: LocationProvider) {
 
-    private var locationDisposable: Disposable? = null
-    private var orientationDisposable: Disposable? = null
-    private val compassData = CompassData()
+    private var compassDisposable: Disposable? = null
     var destination: LocationData? = null
-        set(value) {
-            field = value
-            compassData.destinationLocation = value
-        }
     val compassStateLiveData = MutableLiveData<Result<CompassData>>()
 
-    fun startSensorObservation() {
+    fun startCompass() {
         orientationProvider.startSensorObservation()
-        orientationDisposable = orientationProvider.getSensorUpdates()
-            ?.subscribe({ orientationData ->
-                compassData.orientationData = orientationData
-                destination?.let {
-                    handleDestination(compassData.currentLocation, it)
+        compassDisposable = locationProvider
+            .getLocationUpdates()
+            .combineLatest(orientationProvider.getSensorUpdates())
+            .subscribeBy(
+                onNext = { (currentLocation, currentOrientation) ->
+                    val compassData = CompassData().apply {
+                        this.currentLocation = currentLocation
+                        this.orientationData = currentOrientation
+                    }
+                    destination?.run {
+                        handleDestination(
+                            compassData,
+                            currentLocation,
+                            this,
+                            currentOrientation.currentAzimuth
+                        )
+                    }
+                    compassStateLiveData.postValue(Result.Success(compassData))
+                }, onError = {
+                    compassStateLiveData.postValue(Result.Error(it))
                 }
-                compassStateLiveData.value = Result.Success(compassData)
-            }, { throwable -> compassStateLiveData.value = Result.Error(throwable) })
+            )
     }
 
-    fun startLocationObservation() {
-        locationDisposable = locationProvider.getLocationUpdates()
-            .subscribe({ location ->
-                compassData.currentLocation = location
-                compassStateLiveData.value = Result.Success(compassData)
-            }, { throwable -> compassStateLiveData.value = Result.Error(throwable) })
-    }
-
-    private fun handleDestination(currentLocation: LocationData?, destinationLocation: LocationData) {
-        if (currentLocation == null) return
-        compassData.lastDestinationAzimuth = compassData.currentDestinationAzimuth
+    private fun handleDestination(
+        compassData: CompassData,
+        currentLocation: LocationData,
+        destinationLocation: LocationData,
+        currentAzimuth: Float
+    ) {
         val headingAngle = calculateHeadingAngle(currentLocation, destinationLocation)
 
-        compassData.currentDestinationAzimuth = (headingAngle - compassData.orientationData.currentAzimuth + 360) % 360
+        val currentDestinationAzimuth = (headingAngle - currentAzimuth + 360) % 360
 
-        compassData.distancetoDestination = locationProvider.getDistanceBetweenPoints(compassData.currentLocation,
-            compassData.destinationLocation)
+        val distanceToDestination = locationProvider.getDistanceBetweenPoints(
+            currentLocation,
+            destinationLocation)
+        compassData.currentDestinationAzimuth = currentDestinationAzimuth
+        compassData.distanceToDestination = distanceToDestination
+        compassData.destinationLocation = destinationLocation
     }
 
     private fun calculateHeadingAngle(currentLocation: LocationData, destinationLocation: LocationData): Float {
@@ -70,13 +77,9 @@ class CompassRepository @Inject constructor(
         return (headingAngle + 360) % 360
     }
 
-    fun stopSensorObservation() {
+    fun stopCompass() {
         orientationProvider.stopSensorObservation()
-        orientationDisposable?.dispose()
-    }
-
-    fun stopLocationObservation() {
-        locationDisposable?.dispose()
+        compassDisposable?.dispose()
     }
 
     fun setLowPassFilterAlpha(lowPassFilterAlpha: Float) {

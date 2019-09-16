@@ -9,7 +9,6 @@ import android.view.Surface.*
 import android.view.WindowManager
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import javax.inject.Inject
@@ -21,13 +20,11 @@ import kotlin.math.sin
 class OrientationProvider @Inject constructor(private val sensorManager: SensorManager,
 private val windowManager: WindowManager) {
 
-    private val rotationVector = FloatArray(3)
-    private var azimuth: Float = 0f
     private var alpha = 0f
     private var lastCos = 0f
     private var lastSin = 0f
 
-    private var orientationPublishSubject: PublishSubject<OrientationData>? = null
+    private lateinit var orientationPublishSubject: PublishSubject<SensorEvent>
 
     private var sensorEventListener: SensorEventListener = object : SensorEventListener {
         override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
@@ -44,7 +41,7 @@ private val windowManager: WindowManager) {
         }
 
         override fun onSensorChanged(event: SensorEvent?) {
-            if (event != null) handleSensorEvent(event)
+            if (event != null) orientationPublishSubject.onNext(event)
         }
     }
 
@@ -59,7 +56,7 @@ private val windowManager: WindowManager) {
     fun startSensorObservation() {
         orientationPublishSubject = PublishSubject.create()
         if (!isSensorAvailable(Sensor.TYPE_ROTATION_VECTOR)) {
-            orientationPublishSubject?.onError(Throwable(SENSORS_ERROR))
+            orientationPublishSubject.onError(Throwable(SENSORS_ERROR))
             return
         }
         val rotationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
@@ -71,35 +68,27 @@ private val windowManager: WindowManager) {
         sensorManager.unregisterListener(sensorEventListener)
     }
 
-    fun getSensorUpdates(): Flowable<OrientationData>? {
-        return orientationPublishSubject?.subscribeOn(Schedulers.computation())
-            ?.observeOn(AndroidSchedulers.mainThread())
-            ?.toFlowable(BackpressureStrategy.LATEST)
+    fun getSensorUpdates(): Flowable<OrientationData> {
+        return orientationPublishSubject.subscribeOn(Schedulers.computation())
+            .observeOn(Schedulers.computation())
+            .toFlowable(BackpressureStrategy.LATEST)
+            .map { sensorEvent: SensorEvent -> handleSensorEvent(sensorEvent) }
     }
 
-    private fun handleSensorEvent(sensorEvent: SensorEvent) {
-        synchronized(this) {
-            if (sensorEvent.sensor.type == Sensor.TYPE_ROTATION_VECTOR) {
-                rotationVector[0] = rotationVector[0] + alpha * (sensorEvent.values[0] - rotationVector[0])
-                rotationVector[1] = rotationVector[1] + alpha * (sensorEvent.values[1] - rotationVector[1])
-                rotationVector[2] = rotationVector[2] + alpha * (sensorEvent.values[2] - rotationVector[2])
-            }
+    private fun handleSensorEvent(sensorEvent: SensorEvent): OrientationData {
+        val rotationMatrix = FloatArray(9)
+        val orientation = FloatArray(3)
 
-            val rotationMatrix = FloatArray(9)
-            val orientation = FloatArray(3)
+        SensorManager.getRotationMatrixFromVector(rotationMatrix, sensorEvent.values)
 
-            SensorManager.getRotationMatrixFromVector(rotationMatrix, sensorEvent.values)
+        val adjustedRotationMatrix = getAdjustedRotationMatrix(rotationMatrix)
 
-            val adjustedRotationMatrix = getAdjustedRotationMatrix(rotationMatrix)
+        SensorManager.getOrientation(adjustedRotationMatrix, orientation)
+        val pitch = Math.toDegrees(orientation[1].toDouble()).toFloat()
 
-            val azimuthRadians = SensorManager.getOrientation(adjustedRotationMatrix, orientation)[0].toDouble()
-            val pitch = Math.toDegrees(orientation[1].toDouble()).toFloat()
+        val azimuth = lowPassDegreesFilter(orientation[0])
 
-            azimuth = lowPassDegreesFilter(azimuthRadians.toFloat())
-
-            val orientationData = OrientationData(azimuth, pitch)
-            orientationPublishSubject?.onNext(orientationData)
-        }
+        return OrientationData(azimuth, pitch)
     }
 
     private fun lowPassDegreesFilter(azimuthRadians: Float): Float {
@@ -140,12 +129,10 @@ private val windowManager: WindowManager) {
             rotationMatrix, worldAxisX,
             worldAxisY, adjustedRotationMatrix
         )
-
         return adjustedRotationMatrix
     }
 
     fun setLowPassFilterAlpha(lowPassFilterAlpha: Float) {
         alpha = lowPassFilterAlpha
-        Log.d("ALPHA", lowPassFilterAlpha.toString())
     }
 }

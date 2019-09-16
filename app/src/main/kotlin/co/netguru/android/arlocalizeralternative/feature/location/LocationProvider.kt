@@ -6,7 +6,6 @@ import com.google.android.gms.location.LocationRequest
 import com.patloew.rxlocation.RxLocation
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlin.math.roundToInt
 
@@ -29,7 +28,7 @@ class LocationProvider(private val rxLocation: RxLocation) {
             .toObservable()
             .flatMap { rxLocation.location().updates(locationRequest) }
             .subscribeOn(Schedulers.computation())
-            .observeOn(AndroidSchedulers.mainThread())
+            .observeOn(Schedulers.computation())
             .toFlowable(BackpressureStrategy.LATEST)
             .flatMap { location -> Flowable.just(
                 LocationData(
