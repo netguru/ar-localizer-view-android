@@ -61,7 +61,6 @@ class CompassViewModelTest {
     fun `should stop location and sensor observation on error result`() {
         compassStateLiveData.value = Result.Error(throwable)
 
-        verify(compassRepository).stopSensorObservation()
-        verify(compassRepository).stopLocationObservation()
+        verify(compassRepository).stopCompass()
     }
 }

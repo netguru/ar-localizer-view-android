@@ -9,8 +9,7 @@
     <string name="latitude_error">Latitude value should be between -90 an 90</string>
     <string name="longitude_error">Longitude value should be between -180 an 180</string>
     <string name="empty_value_error">Value should not be empty</string>
-    <string name="location_permission_not_granted_info">Permission denied, location disabled</string>
-    <string name="camera_permission_not_granted_info">Permission denied, camera disabled</string>
+    <string name="essential_permissions_not_granted_info">Essential permissions missing, main functionality disabled</string>
     <string name="permission_recheck_question">Check again</string>
     <string name="error_title">Error</string>
     <string name="error_message">"Error : %1$s. Restart compass ?"</string>

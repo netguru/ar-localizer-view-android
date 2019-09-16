@@ -6,9 +6,8 @@ import co.netguru.android.arlocalizeralternative.feature.orientation.Orientation
 class CompassData {
     var orientationData = OrientationData(0f,0f)
     var currentDestinationAzimuth = -1f
-    var lastDestinationAzimuth = 0f
 
     var currentLocation: LocationData? = null
     var destinationLocation: LocationData? = null
-    var distancetoDestination = 0
+    var distanceToDestination = 0
 }

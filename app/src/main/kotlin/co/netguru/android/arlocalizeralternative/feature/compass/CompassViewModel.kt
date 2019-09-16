@@ -17,8 +17,7 @@ class CompassViewModel @Inject constructor(
             when (compassDataResult) {
                 is Result.Success -> ViewState.Success(compassDataResult.data)
                 is Result.Error -> {
-                    stopSensorObservation()
-                    stopLocationObservation()
+                    stopCompass()
                     ViewState.Error<CompassData>(compassDataResult.throwable.message ?: "Unexpected error")
                 }
             }
@@ -28,20 +27,12 @@ class CompassViewModel @Inject constructor(
         compassRepository.destination = destination
     }
 
-    fun startSensorObservation() {
-        compassRepository.startSensorObservation()
+    fun startCompass() {
+        compassRepository.startCompass()
     }
 
-    fun stopSensorObservation() {
-        compassRepository.stopSensorObservation()
-    }
-
-    fun startLocationObservation() {
-        compassRepository.startLocationObservation()
-    }
-
-    fun stopLocationObservation() {
-        compassRepository.stopLocationObservation()
+    fun stopCompass() {
+        compassRepository.stopCompass()
     }
 
     fun setLowPassFilterAlpha(lowPassFilterAlpha: Float) {

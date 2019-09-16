@@ -2,6 +2,7 @@ package co.netguru.android.arlocalizeralternative.feature.compass
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
+import co.netguru.android.arlocalizeralternative.RxSchedulersOverrideRule
 import co.netguru.android.arlocalizeralternative.feature.location.LocationData
 import co.netguru.android.arlocalizeralternative.feature.location.LocationProvider
 import co.netguru.android.arlocalizeralternative.feature.orientation.OrientationData
@@ -23,6 +24,10 @@ class CompassRepositoryTest {
     @JvmField
     val instantExecutorRule = InstantTaskExecutorRule()
 
+    @Rule
+    @JvmField
+    val schedulersRule = RxSchedulersOverrideRule()
+
     private lateinit var compassRepository: CompassRepository
     @Mock
     private lateinit var locationProvider: LocationProvider
@@ -39,6 +44,24 @@ class CompassRepositoryTest {
         compassRepository.compassStateLiveData.observeForever(observer)
     }
 
+    private fun mockDefaultLocationUpdates(): Pair<PublishSubject<LocationData>, LocationData> {
+        val publishSubject = PublishSubject.create<LocationData>()
+        val latitude = 50.0
+        val longitude = 20.0
+        val compassLocation = LocationData(latitude, longitude)
+        `when`(locationProvider.getLocationUpdates()).thenReturn(publishSubject.toFlowable(
+            BackpressureStrategy.BUFFER))
+        return publishSubject to compassLocation
+    }
+
+    private fun mockDefaultOrientationUpdates(): Pair<PublishSubject<OrientationData>, OrientationData> {
+        val orientationSubject = PublishSubject.create<OrientationData>()
+        val currentAzimuth = 50f
+        val azimuthData = OrientationData(currentAzimuth, 0f)
+        `when`(orientationProvider.getSensorUpdates()).thenReturn(orientationSubject.toFlowable(BackpressureStrategy.BUFFER))
+        return orientationSubject to azimuthData
+    }
+
     @Test
     fun `should get location updates after starting observation`() {
         val publishSubject = PublishSubject.create<LocationData>()
@@ -47,9 +70,11 @@ class CompassRepositoryTest {
         val compassLocation = LocationData(latitude, longitude)
         `when`(locationProvider.getLocationUpdates()).thenReturn(publishSubject.toFlowable(
             BackpressureStrategy.BUFFER))
+       val mockedOrientation = mockDefaultOrientationUpdates()
 
-        compassRepository.startLocationObservation()
+        compassRepository.startCompass()
         publishSubject.onNext(compassLocation)
+        mockedOrientation.first.onNext(mockedOrientation.second)
 
         assert(compassRepository.compassStateLiveData.value is Result.Success)
         assert((compassRepository.compassStateLiveData.value as Result.Success).data.currentLocation == compassLocation)
@@ -71,8 +96,10 @@ class CompassRepositoryTest {
         val longitude = 20.0
         val compassLocation = LocationData(latitude, longitude)
         `when`(locationProvider.getLocationUpdates()).thenReturn(publishSubject.toFlowable(BackpressureStrategy.BUFFER))
+        val mockedDefaultOrientationUpdates = mockDefaultOrientationUpdates()
 
         publishSubject.onNext(compassLocation)
+        mockedDefaultOrientationUpdates.first.onNext(mockedDefaultOrientationUpdates.second)
 
         assert(compassRepository.compassStateLiveData.value == null)
     }
@@ -83,8 +110,11 @@ class CompassRepositoryTest {
         val currentAzimuth = 50f
         val azimuthData = OrientationData(currentAzimuth, 0f)
         `when`(orientationProvider.getSensorUpdates()).thenReturn(publishSubject.toFlowable(BackpressureStrategy.BUFFER))
+        val mockedDefaultLocationUpdates = mockDefaultLocationUpdates()
 
-        compassRepository.startSensorObservation()
+
+        compassRepository.startCompass()
+        mockedDefaultLocationUpdates.first.onNext(mockedDefaultLocationUpdates.second)
         publishSubject.onNext(azimuthData)
 
         assert(compassRepository.compassStateLiveData.value is Result.Success)
@@ -119,9 +149,11 @@ class CompassRepositoryTest {
         val longitude = 20.0
         val compassLocation = LocationData(latitude, longitude)
         `when`(locationProvider.getLocationUpdates()).thenReturn(publishSubject.toFlowable(BackpressureStrategy.BUFFER))
+        val mockedDefaultOrientationUpdates = mockDefaultOrientationUpdates()
 
-        compassRepository.startLocationObservation()
+        compassRepository.startCompass()
         publishSubject.onNext(compassLocation)
+        mockedDefaultOrientationUpdates.first.onNext(mockedDefaultOrientationUpdates.second)
 
         assert(compassRepository.compassStateLiveData.value is Result.Success)
         assert((compassRepository.compassStateLiveData.value as Result.Success).data.currentLocation == compassLocation)
@@ -130,7 +162,7 @@ class CompassRepositoryTest {
         val longitude2 = -20.0
         val compassLocation2 = LocationData(latitude2, longitude2)
 
-        compassRepository.stopLocationObservation()
+        compassRepository.stopCompass()
         publishSubject.onNext(compassLocation2)
 
         assert(compassRepository.compassStateLiveData.value is Result.Success)
@@ -143,8 +175,10 @@ class CompassRepositoryTest {
         val currentAzimuth = 50f
         val azimuthData = OrientationData(currentAzimuth, 0f)
         `when`(orientationProvider.getSensorUpdates()).thenReturn(publishSubject.toFlowable(BackpressureStrategy.BUFFER))
+        val mockedDefautLocationUpdates = mockDefaultLocationUpdates()
 
-        compassRepository.startSensorObservation()
+        compassRepository.startCompass()
+        mockedDefautLocationUpdates.first.onNext(mockedDefautLocationUpdates.second)
         publishSubject.onNext(azimuthData)
 
         assert(compassRepository.compassStateLiveData.value is Result.Success)
@@ -153,7 +187,7 @@ class CompassRepositoryTest {
         val currentAzimuth2 = 30f
         val azimuthData2 = OrientationData(currentAzimuth2, 0f)
 
-        compassRepository.stopSensorObservation()
+        compassRepository.stopCompass()
         publishSubject.onNext(azimuthData2)
 
         assert(compassRepository.compassStateLiveData.value is Result.Success)
@@ -166,14 +200,12 @@ class CompassRepositoryTest {
         var compassLocation = LocationData(51.70255082465981, 19.82147216796875)
         `when`(locationProvider.getLocationUpdates()).thenReturn(locationPublishSubject.toFlowable(BackpressureStrategy.BUFFER))
 
-        compassRepository.startLocationObservation()
-        locationPublishSubject.onNext(compassLocation)
 
         val orientationPublishSubject = PublishSubject.create<OrientationData>()
         `when`(orientationProvider.getSensorUpdates()).thenReturn(orientationPublishSubject.toFlowable(BackpressureStrategy.BUFFER))
         compassRepository.destination = LocationData(51.782355138660385,20.156112670898438)
-        compassRepository.startSensorObservation()
-
+        compassRepository.startCompass()
+        locationPublishSubject.onNext(compassLocation)
 
         //1
         var azimuthData = OrientationData(50f, 0f)

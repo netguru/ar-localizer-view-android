@@ -46,13 +46,16 @@ class CameraActivity : BaseActivity() {
         permissionManager = PermissionManager(this@CameraActivity)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         set_destination_button.setOnClickListener {
-            if (permissionManager.locationPermissionsGranted()) showDestinationDialog()
-            else permissionManager.requestLocationPermissions()
+            onDestinationButtonClick()
         }
-        if (permissionManager.cameraPermissionsGranted()) texture_view.post { startCamera() }
-        else permissionManager.requestCameraPermissions()
 
+        if(permissionManager.permissionsGranted()) texture_view.post { startCamera() }
         initLowPassFilterAlphaSeekbar()
+    }
+
+    private fun onDestinationButtonClick() {
+        if (permissionManager.permissionsGranted()) showDestinationDialog()
+        else permissionManager.requestPermissions()
     }
 
     private fun initLowPassFilterAlphaSeekbar() {
@@ -84,27 +87,19 @@ class CameraActivity : BaseActivity() {
     }
 
     private fun startCompass() {
-        startSensorsObservation()
-        if (permissionManager.locationPermissionsGranted()) startLocationObservation()
-        else permissionManager.requestLocationPermissions()
-    }
-
-    private fun startLocationObservation() {
-        viewModel.startLocationObservation()
-    }
-
-    private fun startSensorsObservation() {
-        viewModel.startSensorObservation()
-        viewModel.viewState.observe(this, Observer { viewState ->
-            when (viewState) {
-                is ViewState.Success<CompassData> -> handleSuccessData(viewState.data)
-                is ViewState.Error -> showErrorDialog(viewState.message)
-            }
-        })
+        if(permissionManager.permissionsGranted()) {
+            viewModel.viewState.observe(this, Observer { viewState ->
+                when (viewState) {
+                    is ViewState.Success<CompassData> -> handleSuccessData(viewState.data)
+                    is ViewState.Error -> showErrorDialog(viewState.message)
+                }
+            })
+            viewModel.startCompass()
+        }
+        else permissionManager.requestPermissions()
     }
 
     private fun handleSuccessData(compassData: CompassData) {
-
         ar_label_view.setCompassData(compassData)
         compassData.currentLocation?.let {
             current_longitude_value.text = it.longitude.toString()
@@ -194,18 +189,14 @@ class CameraActivity : BaseActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when (permissionManager.isLocationPermissionRequestSuccess(requestCode, grantResults)) {
+        when (permissionManager.isPermissionsRequestSuccess(requestCode, grantResults)) {
             PermissionResult.GRANTED -> {
                 showLocationItems(true)
-                startLocationObservation()
+                startCompass()
+                startCamera()
             }
             PermissionResult.NOT_GRANTED -> { }
             PermissionResult.NOT_GRANTED_PERMAMENTLY -> showLocationItems(false)
-        }
-        when (permissionManager.isCameraPermissionRequestSuccess(requestCode, grantResults)) {
-            PermissionResult.GRANTED -> startCamera()
-            PermissionResult.NOT_GRANTED -> {}
-            PermissionResult.NOT_GRANTED_PERMAMENTLY -> {}
         }
     }
 
@@ -214,8 +205,7 @@ class CameraActivity : BaseActivity() {
     }
 
     private fun stopCompass() {
-        viewModel.stopSensorObservation()
-        viewModel.stopLocationObservation()
+        viewModel.stopCompass()
     }
 
     override fun onStop() {
