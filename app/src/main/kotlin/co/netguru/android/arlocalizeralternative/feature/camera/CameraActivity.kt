@@ -19,6 +19,8 @@ import co.netguru.android.arlocalizeralternative.feature.compass.LocationValidat
 import co.netguru.android.arlocalizeralternative.feature.location.CoordinateType
 import co.netguru.android.arlocalizeralternative.feature.location.LocationData
 import co.netguru.android.arlocalizeralternative.feature.location.ValidationResult
+import com.google.android.material.snackbar.BaseTransientBottomBar
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.android.synthetic.main.activity_camera.*
@@ -191,19 +193,30 @@ class CameraActivity : BaseActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when (permissionManager.isPermissionsRequestSuccess(requestCode, grantResults)) {
+        when (permissionManager.getPermissionRequestResult(requestCode, grantResults)) {
             PermissionResult.GRANTED -> {
                 showLocationItems(true)
                 startCompass()
                 startCamera()
             }
-            PermissionResult.NOT_GRANTED -> { }
-            PermissionResult.NOT_GRANTED_PERMAMENTLY -> showLocationItems(false)
+            PermissionResult.SHOW_RATIONALE -> showRationaleSnackbar()
+            PermissionResult.NOT_GRANTED -> showLocationItems(false)
         }
     }
 
     private fun showLocationItems(show: Boolean) {
         location_items.visibility = if (show) View.VISIBLE else View.GONE
+    }
+
+    private fun showRationaleSnackbar() {
+        Snackbar.make(
+            findViewById(android.R.id.content),
+            R.string.essential_permissions_not_granted_info,
+            Snackbar.LENGTH_SHORT
+        )
+            .setAction(R.string.permission_recheck_question) { permissionManager.requestPermissions() }
+            .setDuration(BaseTransientBottomBar.LENGTH_LONG)
+            .show()
     }
 
     private fun stopCompass() {

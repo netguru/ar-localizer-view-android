@@ -4,10 +4,7 @@ import android.Manifest
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import co.netguru.android.arlocalizeralternative.R
 import co.netguru.android.arlocalizeralternative.common.base.BaseActivity
-import com.google.android.material.snackbar.BaseTransientBottomBar
-import com.google.android.material.snackbar.Snackbar
 
 class PermissionManager(private val activity: BaseActivity) {
 
@@ -38,7 +35,7 @@ class PermissionManager(private val activity: BaseActivity) {
         ) == PackageManager.PERMISSION_GRANTED
     }
 
-    fun isPermissionsRequestSuccess(requestCode: Int, grantResults: IntArray): PermissionResult {
+    fun getPermissionRequestResult(requestCode: Int, grantResults: IntArray): PermissionResult {
         if (requestCode != ESSENTIAL_PERMISSIONS_REQUEST_CODE) return PermissionResult.NOT_GRANTED
 
         if (grantResults.none { it == PackageManager.PERMISSION_DENIED }) {
@@ -47,19 +44,11 @@ class PermissionManager(private val activity: BaseActivity) {
         if (ActivityCompat.shouldShowRequestPermissionRationale(
                 activity,
                 Manifest.permission.ACCESS_FINE_LOCATION)
-            || ActivityCompat.shouldShowRequestPermissionRationale(
+            && ActivityCompat.shouldShowRequestPermissionRationale(
                 activity,
                 Manifest.permission.CAMERA)) {
-            Snackbar.make(
-                activity.findViewById(android.R.id.content),
-                R.string.essential_permissions_not_granted_info,
-                Snackbar.LENGTH_SHORT)
-                .setAction(R.string.permission_recheck_question) { requestPermissions() }
-                .setDuration(BaseTransientBottomBar.LENGTH_LONG)
-                .show()
-            return PermissionResult.NOT_GRANTED
-        } else {
-            return PermissionResult.NOT_GRANTED_PERMAMENTLY
+            return PermissionResult.SHOW_RATIONALE
         }
+        return PermissionResult.NOT_GRANTED
     }
 }
