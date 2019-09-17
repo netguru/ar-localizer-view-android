@@ -18,7 +18,7 @@
 <!-- Add links to CI configs with build status and deployment environment, e.g.: -->
 | environment | deployment            | status             |
 |-------------|-----------------------|--------------------|
-| name        | HockeyApp/Fabric link | https://app.bitrise.io/app/02902760b64f29d8/status.svg?token=xLpAoK3SOS0sGo60ASKW-Q&branch=master |
+| name        | HockeyApp/Fabric link | [![Build Status](https://app.bitrise.io/app/02902760b64f29d8/status.svg?token=xLpAoK3SOS0sGo60ASKW-Q&branch=master)](https://app.bitrise.io/app/02902760b64f29d8) |
 <!--- If applies, add link to app on Google Play -->
 
 ## Synopsis
