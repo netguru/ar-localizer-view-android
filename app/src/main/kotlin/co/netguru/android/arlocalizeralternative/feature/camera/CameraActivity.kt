@@ -52,24 +52,11 @@ class CameraActivity : BaseActivity() {
         }
 
         if (permissionManager.permissionsGranted()) texture_view.post { startCamera() }
-        initLowPassFilterAlphaSeekbar()
     }
 
     private fun onDestinationButtonClick() {
         if (permissionManager.permissionsGranted()) showDestinationDialog()
         else permissionManager.requestPermissions()
-    }
-
-    private fun initLowPassFilterAlphaSeekbar() {
-        low_filter_seekbar.max = 100
-        low_filter_seekbar.progress = 0
-        low_filter_seekbar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                viewModel.setLowPassFilterAlpha(progress / 100f)
-            }
-        })
     }
 
     private fun startCamera() {
@@ -89,6 +76,9 @@ class CameraActivity : BaseActivity() {
     }
 
     private fun startCompass() {
+        ar_label_view.setLowPassFilterAlphaListener {
+            viewModel.setLowPassFilterAlpha(it)
+        }
         if (permissionManager.permissionsGranted()) {
             viewModel.viewState.observe(this, Observer { viewState ->
                 when (viewState) {
@@ -220,6 +210,7 @@ class CameraActivity : BaseActivity() {
     }
 
     private fun stopCompass() {
+        ar_label_view.setLowPassFilterAlphaListener(null)
         viewModel.stopCompass()
     }
 
