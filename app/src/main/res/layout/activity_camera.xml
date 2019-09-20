@@ -3,7 +3,6 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:padding="@dimen/default_margin"
         android:layout_width="match_parent" android:layout_height="match_parent"
         tools:context=".feature.camera.CameraActivity">
 
@@ -60,7 +59,7 @@
             app:layout_constraintEnd_toEndOf="@id/half_screen_guideline"
             app:layout_constraintTop_toBottomOf="@id/current_longitude_label"
             android:textColor="@android:color/white"
-            android:text="Azimuth between locations"/>
+            android:text="@string/azimuth_between_locations_label"/>
 
 
     <TextView
@@ -159,15 +158,5 @@ destination_latitude_label, destination_longitude_label, destination_longitude_v
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@android:color/transparent"
-
         />
-
-    <androidx.appcompat.widget.AppCompatSeekBar
-            android:id="@+id/low_filter_seekbar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintBottom_toTopOf="@id/set_destination_button"
-            android:layout_marginBottom="20dp"/>
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -13,4 +13,5 @@
     <string name="permission_recheck_question">Check again</string>
     <string name="error_title">Error</string>
     <string name="error_message">"Error : %1$s. Restart compass ?"</string>
+    <string name="azimuth_between_locations_label">Azimuth between locations</string>
 </resources>
