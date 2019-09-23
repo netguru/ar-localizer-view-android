@@ -9,16 +9,18 @@ import io.reactivex.Flowable
 import io.reactivex.schedulers.Schedulers
 import kotlin.math.roundToInt
 
-/**
- * Created by Mateusz on 10.04.2019.
- */
-
 internal class LocationProvider(private val rxLocation: RxLocation) {
 
+    companion object {
+        private const val LOCATION_REQUEST_INTERVAL = 5000L
+        private const val FASTEST_REQUEST_INTERVAL = 20L
+        private const val SMALLEST_DISPLACEMENT_NOTICED = 1f
+    }
+
     private val locationRequest = LocationRequest().apply {
-        interval = 5000
-        fastestInterval = 20
-        smallestDisplacement = 1f
+        interval = LOCATION_REQUEST_INTERVAL
+        fastestInterval = FASTEST_REQUEST_INTERVAL
+        smallestDisplacement = SMALLEST_DISPLACEMENT_NOTICED
         priority = LocationRequest.PRIORITY_HIGH_ACCURACY
     }
 

@@ -21,6 +21,7 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.ar_localizer_layout.view.*
 
 
+@Suppress("UnusedPrivateMember", "TooManyFunctions")
 class ARLocalizerView : FrameLayout, LifecycleObserver {
 
     constructor(context: Context) : super(context) {
@@ -40,7 +41,7 @@ class ARLocalizerView : FrameLayout, LifecycleObserver {
     }
 
     private lateinit var viewModel: IARLocalizerViewModel
-    private var arLocalizerComponent: ARLocalizerComponent? = null
+    private lateinit var arLocalizerComponent: ARLocalizerComponent
 
     companion object {
         private const val SAVED_STATE = "saved_state"
@@ -50,11 +51,12 @@ class ARLocalizerView : FrameLayout, LifecycleObserver {
         View.inflate(context, R.layout.ar_localizer_layout, this)
     }
 
-    fun onCreate(ARLocalizerDependencyProvider: ARLocalizerDependencyProvider) {
+    fun onCreate(arLocalizerDependencyProvider: ARLocalizerDependencyProvider) {
         arLocalizerComponent =
-            DaggerARLocalizerComponent.factory().create(ARLocalizerDependencyProvider)
-        viewModel = arLocalizerComponent!!.arLocalizerViewModel()
-        ARLocalizerDependencyProvider.getARViewLifecycleOwner().lifecycle.addObserver(this)
+            DaggerARLocalizerComponent.factory().create(arLocalizerDependencyProvider)
+        viewModel = arLocalizerComponent.arLocalizerViewModel()
+        arLocalizerComponent.arLocalizerDependencyProvider().getARViewLifecycleOwner()
+            .lifecycle.addObserver(this)
         checkPermissions()
     }
 
@@ -68,11 +70,6 @@ class ARLocalizerView : FrameLayout, LifecycleObserver {
         stopCompass()
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    private fun onActivityDestroy() {
-        arLocalizerComponent = null
-    }
-
     private fun stopCompass() {
         ar_label_view.setLowPassFilterAlphaListener(null)
         viewModel.stopCompass()
@@ -83,29 +80,32 @@ class ARLocalizerView : FrameLayout, LifecycleObserver {
     }
 
     private fun startCompass() {
-        val lifecycleOwner = context as LifecycleOwner
         ar_label_view.setLowPassFilterAlphaListener {
             viewModel.setLowPassFilterAlpha(it)
         }
-        viewModel.compassState.observe(lifecycleOwner, Observer { viewState ->
-            when (viewState) {
-                is ViewState.Success<CompassData> -> handleSuccessData(viewState.data)
-                is ViewState.Error -> showErrorDialog(viewState.message)
-            }
-        })
+        viewModel.compassState.observe(
+            arLocalizerComponent.arLocalizerDependencyProvider().getARViewLifecycleOwner(),
+            Observer { viewState ->
+                when (viewState) {
+                    is ViewState.Success<CompassData> -> handleSuccessData(viewState.data)
+                    is ViewState.Error -> showErrorDialog(viewState.message)
+                }
+            })
         viewModel.startCompass()
     }
 
     private fun checkPermissions() {
-        viewModel.permissionState.observe(context as LifecycleOwner, Observer { permissionState ->
-            when (permissionState) {
-                PermissionResult.GRANTED -> {
-                    texture_view.post { startCameraPreview() }
+        viewModel.permissionState.observe(
+            arLocalizerComponent.arLocalizerDependencyProvider().getARViewLifecycleOwner(),
+            Observer { permissionState ->
+                when (permissionState) {
+                    PermissionResult.GRANTED -> {
+                        texture_view.post { startCameraPreview() }
+                    }
+                    PermissionResult.SHOW_RATIONALE -> showRationaleSnackbar()
+                    PermissionResult.NOT_GRANTED -> { }
                 }
-                PermissionResult.SHOW_RATIONALE -> showRationaleSnackbar()
-                PermissionResult.NOT_GRANTED -> { }
-            }
-        })
+            })
         viewModel.checkPermissions()
     }
 
@@ -124,7 +124,10 @@ class ARLocalizerView : FrameLayout, LifecycleObserver {
             texture_view
         )
 
-        CameraX.bindToLifecycle(context as LifecycleOwner, preview)
+        CameraX.bindToLifecycle(
+            arLocalizerComponent.arLocalizerDependencyProvider().getARViewLifecycleOwner(),
+            preview
+        )
     }
 
     private fun showErrorDialog(message: String) {

@@ -37,22 +37,18 @@ internal class PermissionManager(private val activity: Activity) {
     }
 
     fun getPermissionsRequestResult(requestCode: Int, grantResults: IntArray): PermissionResult {
-        if (requestCode != ESSENTIAL_PERMISSIONS_REQUEST_CODE) return PermissionResult.NOT_GRANTED
-
-        if (grantResults.none { it == PackageManager.PERMISSION_DENIED }) {
-            return PermissionResult.GRANTED
-        }
-        if (ActivityCompat.shouldShowRequestPermissionRationale(
+        return when {
+            requestCode != ESSENTIAL_PERMISSIONS_REQUEST_CODE -> PermissionResult.NOT_GRANTED
+            grantResults.none { it == PackageManager.PERMISSION_DENIED } -> PermissionResult.GRANTED
+            ActivityCompat.shouldShowRequestPermissionRationale(
                 activity,
                 Manifest.permission.ACCESS_FINE_LOCATION
             )
-            || ActivityCompat.shouldShowRequestPermissionRationale(
+                    || ActivityCompat.shouldShowRequestPermissionRationale(
                 activity,
                 Manifest.permission.CAMERA
-            )
-        ) {
-            return PermissionResult.SHOW_RATIONALE
+            ) -> PermissionResult.SHOW_RATIONALE
+            else -> PermissionResult.NOT_GRANTED
         }
-        return PermissionResult.NOT_GRANTED
     }
 }

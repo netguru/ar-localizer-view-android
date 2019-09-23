@@ -72,7 +72,7 @@ complexity:
     active: true
     threshold: 4
   ComplexInterface:
-    active: true
+    active: false
     threshold: 10
     includeStaticDeclarations: false
   ComplexMethod:
@@ -87,7 +87,7 @@ complexity:
     threshold: 400
   LongMethod:
     active: true
-    threshold: 20
+    threshold: 30
   LongParameterList:
     active: true
     threshold: 6

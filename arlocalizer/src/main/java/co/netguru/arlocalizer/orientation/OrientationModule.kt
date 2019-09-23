@@ -11,18 +11,18 @@ import dagger.Provides
 internal class OrientationModule {
 
     @Provides
-    internal fun provideOrientationProvider(sensorManager: SensorManager,
-                                            windowManager: WindowManager): OrientationProvider {
-        return OrientationProvider(sensorManager, windowManager)
-    }
+    internal fun provideOrientationProvider(
+        sensorManager: SensorManager?,
+        windowManager: WindowManager?
+    ) = OrientationProvider(sensorManager, windowManager)
+
 
     @Provides
-    internal fun provideSensorManager(ARLocalizerDependencyProvider: ARLocalizerDependencyProvider): SensorManager {
-        return ARLocalizerDependencyProvider.getSensorsContext().getSystemService(Context.SENSOR_SERVICE) as SensorManager
-    }
+    internal fun provideSensorManager(arLocalizerDependencyProvider: ARLocalizerDependencyProvider) =
+        arLocalizerDependencyProvider.getSensorsContext().getSystemService(Context.SENSOR_SERVICE) as? SensorManager
+
 
     @Provides
-    internal fun providesWindowManager(ARLocalizerDependencyProvider: ARLocalizerDependencyProvider): WindowManager {
-        return ARLocalizerDependencyProvider.getSensorsContext().getSystemService(Context.WINDOW_SERVICE) as WindowManager
-    }
+    internal fun providesWindowManager(arLocalizerDependencyProvider: ARLocalizerDependencyProvider) =
+        arLocalizerDependencyProvider.getSensorsContext().getSystemService(Context.WINDOW_SERVICE) as? WindowManager
 }

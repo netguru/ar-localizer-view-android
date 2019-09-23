@@ -156,7 +156,7 @@ internal class ARLabelView @JvmOverloads constructor(
             ANIMATION_DURATION
         showUpAnimator?.interpolator = AccelerateInterpolator(ACCELERATE_INTERPOLATOR_FACTOR)
         showUpAnimator?.addUpdateListener { animation ->
-            animatedRectangleSize = animation.getAnimatedValue(PROPERTY_SIZE) as Int
+            animatedRectangleSize = animation.getAnimatedValue(PROPERTY_SIZE) as? Int ?: 0
             invalidate()
         }
         showUpAnimator?.start()

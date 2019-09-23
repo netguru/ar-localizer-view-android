@@ -15,8 +15,9 @@ internal interface ARLocalizerComponent {
 
     @Component.Factory
     interface Factory {
-        fun create(@BindsInstance ARLocalizerDependencyProvider: ARLocalizerDependencyProvider): ARLocalizerComponent
+        fun create(@BindsInstance arLocalizerDependencyProvider: ARLocalizerDependencyProvider): ARLocalizerComponent
     }
 
     fun arLocalizerViewModel(): IARLocalizerViewModel
+    fun arLocalizerDependencyProvider(): ARLocalizerDependencyProvider
 }

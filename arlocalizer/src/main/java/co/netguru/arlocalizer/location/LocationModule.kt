@@ -9,7 +9,6 @@ import dagger.Provides
 internal class LocationModule {
 
     @Provides
-    internal fun provideLocationProvider(ARLocalizerDependencyProvider: ARLocalizerDependencyProvider): LocationProvider {
-        return LocationProvider(RxLocation(ARLocalizerDependencyProvider.getSensorsContext()))
-    }
+    internal fun provideLocationProvider(arLocalizerDependencyProvider: ARLocalizerDependencyProvider) =
+        LocationProvider(RxLocation(arLocalizerDependencyProvider.getSensorsContext()))
 }

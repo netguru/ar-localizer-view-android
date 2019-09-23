@@ -4,7 +4,6 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
-import android.util.Log
 import android.view.Surface.*
 import android.view.WindowManager
 import io.reactivex.BackpressureStrategy
@@ -18,8 +17,9 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 
-internal class OrientationProvider @Inject constructor(private val sensorManager: SensorManager,
-private val windowManager: WindowManager) {
+@Suppress("MagicNumber")
+internal class OrientationProvider @Inject constructor(private val sensorManager: SensorManager?,
+private val windowManager: WindowManager?) {
 
     private var alpha = 0f
     private var lastCos = 0f
@@ -50,9 +50,8 @@ private val windowManager: WindowManager) {
         private const val SENSORS_ERROR = "Sensors are not available"
     }
 
-    private fun isSensorAvailable(sensorType: Int): Boolean {
-        return sensorManager.getDefaultSensor(sensorType) != null
-    }
+    private fun isSensorAvailable(sensorType: Int) =
+        sensorManager?.getDefaultSensor(sensorType) != null
 
     fun startSensorObservation() {
         orientationPublishSubject = PublishSubject.create()
@@ -60,13 +59,13 @@ private val windowManager: WindowManager) {
             orientationPublishSubject.onError(Throwable(SENSORS_ERROR))
             return
         }
-        val rotationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
+        val rotationSensor = sensorManager?.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
 
-        sensorManager.registerListener(sensorEventListener, rotationSensor, SensorManager.SENSOR_DELAY_GAME)
+        sensorManager?.registerListener(sensorEventListener, rotationSensor, SensorManager.SENSOR_DELAY_GAME)
     }
 
     fun stopSensorObservation() {
-        sensorManager.unregisterListener(sensorEventListener)
+        sensorManager?.unregisterListener(sensorEventListener)
     }
 
     fun getSensorUpdates(): Flowable<OrientationData> {
@@ -100,10 +99,20 @@ private val windowManager: WindowManager) {
     }
 
     private fun getAdjustedRotationMatrix(rotationMatrix: FloatArray): FloatArray {
+        val axisXY = getProperAxis()
+
+        val adjustedRotationMatrix = FloatArray(9)
+        SensorManager.remapCoordinateSystem(
+            rotationMatrix, axisXY.first,
+            axisXY.second, adjustedRotationMatrix
+        )
+        return adjustedRotationMatrix
+    }
+
+    private fun getProperAxis(): Pair<Int, Int> {
         val worldAxisX: Int
         val worldAxisY: Int
-
-        when (windowManager.defaultDisplay.rotation) {
+        when (windowManager?.defaultDisplay?.rotation) {
             ROTATION_90 -> {
                 worldAxisX = SensorManager.AXIS_Z
                 worldAxisY = SensorManager.AXIS_MINUS_X
@@ -125,12 +134,7 @@ private val windowManager: WindowManager) {
                 worldAxisY = SensorManager.AXIS_Z
             }
         }
-        val adjustedRotationMatrix = FloatArray(9)
-        SensorManager.remapCoordinateSystem(
-            rotationMatrix, worldAxisX,
-            worldAxisY, adjustedRotationMatrix
-        )
-        return adjustedRotationMatrix
+        return Pair(worldAxisX, worldAxisY)
     }
 
     fun setLowPassFilterAlpha(lowPassFilterAlpha: Float) {

@@ -36,6 +36,7 @@ import java.util.Objects
  * Builder for [Preview] that takes in a [WeakReference] of the view finder and [PreviewConfig],
  * then instantiates a [Preview] which automatically resizes and rotates reacting to config changes.
  */
+@Suppress("ALL")
 internal class AutoFitPreviewBuilder private constructor(
     config: PreviewConfig, viewFinderRef: WeakReference<TextureView>) {
 

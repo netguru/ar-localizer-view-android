@@ -18,6 +18,10 @@ internal class CompassRepository @Inject constructor(
     private val locationProvider: LocationProvider
 ) {
 
+    companion object {
+        private const val MAXIMUM_ANGLE = 360
+    }
+
     private var compassDisposable: Disposable? = null
     var destination: LocationData? = null
     val compassStateLiveData = MutableLiveData<Result<CompassData>>()
@@ -56,7 +60,7 @@ internal class CompassRepository @Inject constructor(
     ) {
         val headingAngle = calculateHeadingAngle(currentLocation, destinationLocation)
 
-        val currentDestinationAzimuth = (headingAngle - currentAzimuth + 360) % 360
+        val currentDestinationAzimuth = (headingAngle - currentAzimuth + MAXIMUM_ANGLE) % MAXIMUM_ANGLE
 
         val distanceToDestination = locationProvider.getDistanceBetweenPoints(
             currentLocation,
@@ -71,11 +75,12 @@ internal class CompassRepository @Inject constructor(
         val destinationLatitudeRadians = Math.toRadians(destinationLocation.latitude)
         val deltaLongitude = Math.toRadians(destinationLocation.longitude - currentLocation.longitude)
 
-        val y = cos(currentLatitudeRadians) * sin(destinationLatitudeRadians) - sin(currentLatitudeRadians) * cos(destinationLatitudeRadians) * cos(deltaLongitude)
+        val y = cos(currentLatitudeRadians) * sin(destinationLatitudeRadians) -
+                sin(currentLatitudeRadians) * cos(destinationLatitudeRadians) * cos(deltaLongitude)
         val x = sin(deltaLongitude) * cos(destinationLatitudeRadians)
         val headingAngle = Math.toDegrees(atan2(x, y)).toFloat()
 
-        return (headingAngle + 360) % 360
+        return (headingAngle + MAXIMUM_ANGLE) % MAXIMUM_ANGLE
     }
 
     fun stopCompass() {
