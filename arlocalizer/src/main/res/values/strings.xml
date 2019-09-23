@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">ArLocalizer</string>
+    <string name="essential_permissions_not_granted_info">Essential permissions missing, main functionality disabled</string>
+    <string name="permission_recheck_question">Check again</string>
+    <string name="error_title">Error</string>
+    <string name="error_message">"Error : %1$s. Restart compass ?"</string>
+</resources>

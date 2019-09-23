@@ -175,6 +175,9 @@ dependencies {
     implementation libs.ktx
     implementation libs.ktxFragment
 
+    //ARLocalizer library
+    implementation project(":arlocalizer")
+
     // Dagger
     implementation libs.dagger
     implementation libs.daggerAndroid
@@ -202,14 +205,6 @@ dependencies {
 
     // Timber
     implementation libs.timber
-
-    //Location
-    implementation libs.playServicesLocation
-    implementation libs.rxLocation
-
-    //Camera
-    implementation libs.cameraXCore
-    implementation libs.camera2
 
     // Stetho
     debugImplementation libs.stetho

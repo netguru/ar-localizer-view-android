@@ -2,7 +2,7 @@ package co.netguru.android.arlocalizeralternative.application
 
 import android.app.Application
 import co.netguru.android.arlocalizeralternative.common.error.ErrorHandlerModule
-import co.netguru.android.arlocalizeralternative.feature.FeatureModule
+import co.netguru.android.arlocalizeralternative.feature.arlocalizer.ArLocalizerActivityModule
 import dagger.BindsInstance
 import dagger.Component
 import dagger.android.AndroidInjectionModule
@@ -16,7 +16,7 @@ import javax.inject.Singleton
         AndroidInjectionModule::class,
         AndroidSupportInjectionModule::class,
         ErrorHandlerModule::class,
-        FeatureModule::class
+        ArLocalizerActivityModule::class
     ]
 )
 internal interface ApplicationComponent : AndroidInjector<App> {
