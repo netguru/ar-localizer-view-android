@@ -80,6 +80,7 @@ class ArLocalizerActivity : BaseActivity() {
         }
     }
 
+    @Suppress("UnsafeCast")
     private fun validateDestinationInput(
         latitude: Double?, longitude: Double?, latitudeTextInputLayout: TextInputLayout,
         longitudeTextInputLayout: TextInputLayout, dialog: AlertDialog
