@@ -2,10 +2,6 @@
 <manifest package="co.netguru.android.arlocalizeralternative"
           xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission android:name="android.permission.CAMERA" />
-
     <application
         android:name="co.netguru.android.arlocalizeralternative.application.App"
         android:label="@string/app_name"
@@ -14,8 +10,7 @@
         android:roundIcon="@mipmap/ic_launcher_round">
 
         <activity
-            android:name=".feature.camera.CameraActivity"
-            android:screenOrientation="portrait"
+            android:name=".feature.arlocalizer.ArLocalizerActivity"
             android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>

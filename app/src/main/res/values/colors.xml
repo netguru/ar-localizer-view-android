@@ -6,7 +6,4 @@
     <color name="colorPrimary">#008577</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
-
-    <color name="ar_label_background">#f5f5f5</color>
-    <color name="ar_label_text">#616161</color>
 </resources>

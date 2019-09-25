@@ -1,7 +1,8 @@
 package co.netguru.android.arlocalizeralternative.feature.compass
 
-import co.netguru.android.arlocalizeralternative.feature.location.CoordinateType
-import co.netguru.android.arlocalizeralternative.feature.location.ValidationResult
+import co.netguru.android.arlocalizeralternative.feature.arlocalizer.CoordinateType
+import co.netguru.android.arlocalizeralternative.feature.arlocalizer.LocationValidator
+import co.netguru.android.arlocalizeralternative.feature.arlocalizer.ValidationResult
 import org.junit.Test
 
 /**

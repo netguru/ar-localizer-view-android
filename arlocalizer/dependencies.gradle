@@ -1,0 +1,46 @@
+ext {
+    // Versions
+    daggerVersion = '2.24'
+    stethoVersion = '1.5.1'
+    lifecycleVersion = "2.0.0"
+    camerax_version = "1.0.0-alpha04"
+
+    libs = [
+            kotlin                  : "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion",
+            appCompat               : "androidx.appcompat:appcompat:1.1.0",
+            annotations             : "androidx.annotation:annotation:1.1.0",
+            lifecycleExtensions     : "androidx.lifecycle:lifecycle-extensions:$lifecycleVersion",
+            ktx                     : "androidx.core:core-ktx:1.0.2",
+            rxJava2                 : "io.reactivex.rxjava2:rxjava:2.2.11",
+            rxKotlin2               : "io.reactivex.rxjava2:rxkotlin:2.4.0",
+            rxAndroid2              : "io.reactivex.rxjava2:rxandroid:2.1.1",
+            dagger                  : "com.google.dagger:dagger:$daggerVersion",
+            daggerAndroid           : "com.google.dagger:dagger-android:$daggerVersion",
+            daggerAndroidSupport    : "com.google.dagger:dagger-android-support:$daggerVersion",
+            timber                  : "com.jakewharton.timber:timber:4.7.1",
+            cameraXCore             : "androidx.camera:camera-core:$camerax_version",
+            camera2                 : "androidx.camera:camera-camera2:$camerax_version",
+            playServicesLocation    : "com.google.android.gms:play-services-location:17.0.0",
+            rxLocation              : "com.patloew.rxlocation:rxlocation:1.0.5",
+            materialComponents      : "com.google.android.material:material:1.0.0",
+    ]
+
+    proc = [
+            dagger         : "com.google.dagger:dagger-compiler:$daggerVersion", // kapt
+            daggerAndroid  : "com.google.dagger:dagger-android-processor:$daggerVersion", // kapt
+            javaxAnnotation: "org.glassfish:javax.annotation:10.0-b28", // kapt (compileOnly)
+    ]
+
+    test = [
+            mockito        : "org.mockito:mockito-core:3.0.0",
+            mockitoKotlin  : "com.nhaarman:mockito-kotlin-kt1.1:1.6.0",
+            junit          : "junit:junit:4.12",
+            archTesting    : "android.arch.core:core-testing:1.1.1",
+
+            espressoCore   : "androidx.test.espresso:espresso-core:$espressoVersion",
+            espressoContrib: "androidx.test.espresso:espresso-contrib:$espressoVersion",
+            espressoIntents: "androidx.test.espresso:espresso-intents:$espressoVersion",
+            espressoRunner : "androidx.test:runner:1.2.0",
+            espressoRules  : "androidx.test:rules:1.2.0",
+    ]
+}
