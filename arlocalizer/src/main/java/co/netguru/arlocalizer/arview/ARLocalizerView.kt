@@ -36,10 +36,6 @@ class ARLocalizerView @JvmOverloads constructor(
     }
 
     init {
-        init(context)
-    }
-
-    private fun init(context: Context) {
         View.inflate(context, R.layout.ar_localizer_layout, this)
     }
 
@@ -106,13 +102,8 @@ class ARLocalizerView @JvmOverloads constructor(
     }
 
     private fun startCameraPreview() {
-        // Create configuration object for the viewfinder use case
-        val previewConfig = PreviewConfig.Builder().apply {
-        }.build()
-
-        // Build the viewfinder use case
         val preview = AutoFitPreviewBuilder.build(
-            previewConfig,
+            PreviewConfig.Builder().build(),
             texture_view
         )
 
