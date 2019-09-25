@@ -1,21 +1,19 @@
 package co.netguru.android.arlocalizeralternative.feature.arlocalizer
 
-import android.app.Activity
 import android.app.AlertDialog
-import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
-import androidx.lifecycle.LifecycleOwner
 import co.netguru.android.arlocalizeralternative.R
 import co.netguru.android.arlocalizeralternative.common.base.BaseActivity
+import co.netguru.arlocalizer.ARLocalizerDependencyProvider
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.android.synthetic.main.activity_arlocalizer.*
 import javax.inject.Inject
 
 
-class ArLocalizerActivity : BaseActivity() {
+class ArLocalizerActivity : BaseActivity(), ARLocalizerDependencyProvider {
 
     @Inject
     lateinit var locationValidator: LocationValidator
@@ -26,26 +24,19 @@ class ArLocalizerActivity : BaseActivity() {
 
         setContentView(R.layout.activity_arlocalizer)
 
-        ar_localizer.onCreate(object:
-            co.netguru.arlocalizer.ARLocalizerDependencyProvider {
-            override fun getPermissionActivity(): Activity {
-                return this@ArLocalizerActivity
-            }
-
-            override fun getSensorsContext(): Context {
-                return this@ArLocalizerActivity
-            }
-
-            override fun getARViewLifecycleOwner(): LifecycleOwner {
-                return this@ArLocalizerActivity
-            }
-        })
+        ar_localizer.onCreate(this)
 
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         set_destination_button.setOnClickListener {
             onDestinationButtonClick()
         }
     }
+
+    override fun getSensorsContext() = this
+
+    override fun getARViewLifecycleOwner() = this
+
+    override fun getPermissionActivity() = this
 
     private fun onDestinationButtonClick() {
         showDestinationDialog()

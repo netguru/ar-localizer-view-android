@@ -22,29 +22,21 @@ import kotlinx.android.synthetic.main.ar_localizer_layout.view.*
 
 
 @Suppress("UnusedPrivateMember", "TooManyFunctions")
-class ARLocalizerView : FrameLayout, LifecycleObserver {
-
-    constructor(context: Context) : super(context) {
-        init(context)
-    }
-
-    constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
-        init(context)
-    }
-
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
-        context,
-        attrs,
-        defStyleAttr
-    ) {
-        init(context)
-    }
+class ARLocalizerView @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
+) : FrameLayout(context, attrs, defStyleAttr), LifecycleObserver {
 
     private lateinit var viewModel: IARLocalizerViewModel
     private lateinit var arLocalizerComponent: ARLocalizerComponent
 
     companion object {
         private const val SAVED_STATE = "saved_state"
+    }
+
+    init {
+        init(context)
     }
 
     private fun init(context: Context) {
@@ -103,7 +95,7 @@ class ARLocalizerView : FrameLayout, LifecycleObserver {
                         texture_view.post { startCameraPreview() }
                     }
                     PermissionResult.SHOW_RATIONALE -> showRationaleSnackbar()
-                    PermissionResult.NOT_GRANTED -> { }
+                    PermissionResult.NOT_GRANTED -> Unit
                 }
             })
         viewModel.checkPermissions()

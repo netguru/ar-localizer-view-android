@@ -84,8 +84,7 @@ internal class ARLocalizerViewModel @Inject constructor(
         when (permissionResult) {
             PermissionResult.GRANTED ->
                 if (!compassRepository.hasCompassStarted()) startCompass()
-            else -> {
-            }
+            else -> Unit
         }
         permissionState.postValue(
             permissionResult
