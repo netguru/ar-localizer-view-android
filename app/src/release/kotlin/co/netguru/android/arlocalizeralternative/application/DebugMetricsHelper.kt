@@ -16,6 +16,7 @@ import javax.inject.Inject
  * ## Release type tools:
  * - CrashManager
  */
+@Suppress("ALL")
 @Singleton
 class DebugMetricsHelper @Inject constructor() {
 
