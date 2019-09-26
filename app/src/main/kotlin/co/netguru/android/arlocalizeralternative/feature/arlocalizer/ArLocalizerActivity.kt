@@ -1,18 +1,16 @@
 package co.netguru.android.arlocalizeralternative.feature.arlocalizer
 
-import android.app.Activity
-import android.content.Context
 import android.os.Bundle
 import android.view.WindowManager
-import androidx.lifecycle.LifecycleOwner
 import co.netguru.android.arlocalizeralternative.R
 import co.netguru.android.arlocalizeralternative.common.base.BaseActivity
+import co.netguru.arlocalizer.ARLocalizerDependencyProvider
 import co.netguru.arlocalizer.location.LocationData
 import kotlinx.android.synthetic.main.activity_arlocalizer.*
 import javax.inject.Inject
 
 
-class ArLocalizerActivity : BaseActivity() {
+class ArLocalizerActivity : BaseActivity(), ARLocalizerDependencyProvider {
 
     @Inject
     lateinit var locationValidator: LocationValidator
@@ -23,20 +21,7 @@ class ArLocalizerActivity : BaseActivity() {
 
         setContentView(R.layout.activity_arlocalizer)
 
-        ar_localizer.onCreate(object:
-            co.netguru.arlocalizer.ARLocalizerDependencyProvider {
-            override fun getPermissionActivity(): Activity {
-                return this@ArLocalizerActivity
-            }
-
-            override fun getSensorsContext(): Context {
-                return this@ArLocalizerActivity
-            }
-
-            override fun getARViewLifecycleOwner(): LifecycleOwner {
-                return this@ArLocalizerActivity
-            }
-        })
+        ar_localizer.onCreate(this)
 
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         netguru_offices_button.setOnClickListener {
@@ -46,6 +31,12 @@ class ArLocalizerActivity : BaseActivity() {
             ar_localizer.setDestinations(getPointsAroundGdanskOffice())
         }
     }
+
+    override fun getSensorsContext() = this
+
+    override fun getARViewLifecycleOwner() = this
+
+    override fun getPermissionActivity() = this
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
