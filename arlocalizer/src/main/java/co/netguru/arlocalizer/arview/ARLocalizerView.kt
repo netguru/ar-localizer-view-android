@@ -9,9 +9,14 @@ import android.view.View
 import android.widget.FrameLayout
 import androidx.camera.core.CameraX
 import androidx.camera.core.PreviewConfig
-import androidx.lifecycle.*
-import co.netguru.arlocalizer.*
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.Observer
+import androidx.lifecycle.OnLifecycleEvent
 import co.netguru.arlocalizer.ARLocalizerComponent
+import co.netguru.arlocalizer.ARLocalizerDependencyProvider
+import co.netguru.arlocalizer.DaggerARLocalizerComponent
+import co.netguru.arlocalizer.PermissionResult
 import co.netguru.arlocalizer.R
 import co.netguru.arlocalizer.compass.CompassData
 import co.netguru.arlocalizer.location.LocationData

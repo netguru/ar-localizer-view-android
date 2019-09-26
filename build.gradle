@@ -36,17 +36,19 @@ allprojects {
     }
 }
 
-subprojects {
-    apply plugin: 'io.gitlab.arturbosch.detekt'
-
-    detekt {
-        config = files("$rootDir/default-detekt-config.yml")
-        filters = ".*build.*,.*/resources/.*,.*/tmp/.*"
-        reports {
-            xml {
-                destination = file("build/reports/detekt.xml")
-            }
-        }
+tasks.register('detektAll', io.gitlab.arturbosch.detekt.Detekt) {
+    description = "Runs detekt analysis over whole code base without the starting overhead for each module."
+    parallel = true
+    config = files("$rootDir/default-detekt-config.yml")
+    setSource(files(projectDir))
+    include("**/*.kt")
+    include("**/*.kts")
+    exclude("**/resources/**")
+    exclude("**/build/**")
+    reports {
+        xml.enabled = true
+        html.enabled = false
+        txt.enabled = false
     }
 }
 
@@ -57,4 +59,3 @@ task clean(type: Delete) {
 apply from: 'buildsystem/dependencies.gradle'
 apply from: 'buildsystem/bitrise.gradle'
 apply from: 'buildsystem/secrets.gradle'
-apply from: 'buildsystem/detekt.gradle'
