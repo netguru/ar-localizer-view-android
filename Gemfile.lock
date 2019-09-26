@@ -29,6 +29,8 @@ GEM
     danger-android_lint (0.0.7)
       danger-plugin-api (~> 1.0)
       oga
+    danger-apkanalyzer (0.0.1)
+      danger-plugin-api (~> 1.0)
     danger-jacoco (0.1.4)
       danger-plugin-api (~> 1.0)
       nokogiri-happymapper (~> 0.6)
@@ -83,6 +85,7 @@ PLATFORMS
 DEPENDENCIES
   danger
   danger-android_lint
+  danger-apkanalyzer
   danger-jacoco
   danger-jira
   danger-junit
