@@ -5,9 +5,6 @@ import co.netguru.arlocalizer.orientation.OrientationData
 
 internal class CompassData {
     var orientationData = OrientationData(0f, 0f)
-    var currentDestinationAzimuth = -1f
-
+    val destinations = arrayListOf<DestinationData>()
     var currentLocation: LocationData? = null
-    var destinationLocation: LocationData? = null
-    var distanceToDestination = 0
 }

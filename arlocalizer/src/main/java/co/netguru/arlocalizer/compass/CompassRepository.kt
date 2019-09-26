@@ -1,17 +1,17 @@
 package co.netguru.arlocalizer.compass
 
 import androidx.lifecycle.MutableLiveData
+import co.netguru.arlocalizer.common.Result
 import co.netguru.arlocalizer.location.LocationData
 import co.netguru.arlocalizer.location.LocationProvider
 import co.netguru.arlocalizer.orientation.OrientationProvider
+import io.reactivex.disposables.Disposable
+import io.reactivex.rxkotlin.combineLatest
+import io.reactivex.rxkotlin.subscribeBy
 import javax.inject.Inject
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
-import co.netguru.arlocalizer.common.Result
-import io.reactivex.disposables.Disposable
-import io.reactivex.rxkotlin.combineLatest
-import io.reactivex.rxkotlin.subscribeBy
 
 internal class CompassRepository @Inject constructor(
     private val orientationProvider: OrientationProvider,
@@ -23,7 +23,7 @@ internal class CompassRepository @Inject constructor(
     }
 
     private var compassDisposable: Disposable? = null
-    var destination: LocationData? = null
+    var destinations: List<LocationData> = listOf()
     val compassStateLiveData = MutableLiveData<Result<CompassData>>()
 
     fun startCompass() {
@@ -37,11 +37,12 @@ internal class CompassRepository @Inject constructor(
                         this.currentLocation = currentLocation
                         this.orientationData = currentOrientation
                     }
-                    destination?.run {
+                    destinations.forEachIndexed { index, locationData ->
                         handleDestination(
                             compassData,
                             currentLocation,
-                            this,
+                            locationData,
+                            index,
                             currentOrientation.currentAzimuth
                         )
                     }
@@ -56,18 +57,25 @@ internal class CompassRepository @Inject constructor(
         compassData: CompassData,
         currentLocation: LocationData,
         destinationLocation: LocationData,
+        index: Int,
         currentAzimuth: Float
     ) {
         val headingAngle = calculateHeadingAngle(currentLocation, destinationLocation)
 
-        val currentDestinationAzimuth = (headingAngle - currentAzimuth + MAXIMUM_ANGLE) % MAXIMUM_ANGLE
+        val currentDestinationAzimuth =
+            (headingAngle - currentAzimuth + MAXIMUM_ANGLE) % MAXIMUM_ANGLE
 
         val distanceToDestination = locationProvider.getDistanceBetweenPoints(
             currentLocation,
-            destinationLocation)
-        compassData.currentDestinationAzimuth = currentDestinationAzimuth
-        compassData.distanceToDestination = distanceToDestination
-        compassData.destinationLocation = destinationLocation
+            destinationLocation
+        )
+        compassData.destinations.add(
+            index, DestinationData(
+                currentDestinationAzimuth,
+                distanceToDestination,
+                destinationLocation
+            )
+        )
     }
 
     private fun calculateHeadingAngle(currentLocation: LocationData, destinationLocation: LocationData): Float {

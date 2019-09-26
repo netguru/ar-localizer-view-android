@@ -37,9 +37,9 @@ internal class ARLocalizerViewModel @Inject constructor(
 
     override val permissionState: MutableLiveData<PermissionResult> = MutableLiveData()
 
-    override fun setDestination(destination: LocationData) {
+    override fun setDestinations(destinations: List<LocationData>) {
         if (!permissionManager.areAllPermissionsGranted()) checkPermissions()
-        compassRepository.destination = destination
+        compassRepository.destinations = destinations
     }
 
     override fun startCompass() {
@@ -55,14 +55,14 @@ internal class ARLocalizerViewModel @Inject constructor(
     }
 
     override fun onSaveInstanceState(bundle: Bundle) {
-        compassRepository.destination?.let {
-            bundle.putParcelable(LOCATION_DATA, it)
+        compassRepository.destinations.let {
+            bundle.putParcelableArrayList(LOCATION_DATA, ArrayList(it))
         }
     }
 
     override fun onRestoreInstanceState(bundle: Bundle) {
-        (bundle.get(LOCATION_DATA) as? LocationData)?.let {
-            compassRepository.destination = it
+        (bundle.get(LOCATION_DATA) as? ArrayList<LocationData>)?.let {
+            compassRepository.destinations = it
         }
     }
 

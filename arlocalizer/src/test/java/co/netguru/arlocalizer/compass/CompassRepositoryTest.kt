@@ -242,26 +242,23 @@ class CompassRepositoryTest {
 
     @Test
     fun `should calculate correct heading angle based on azimuth and location`() {
-        val locationPublishSubject =
-            PublishSubject.create<LocationData>()
-        var compassLocation =
-            LocationData(51.70255082465981, 19.82147216796875)
+        val locationPublishSubject = PublishSubject.create<LocationData>()
+        var compassLocation = LocationData(51.70255082465981, 19.82147216796875)
         `when`(locationProvider.getLocationUpdates()).thenReturn(
             locationPublishSubject.toFlowable(
                 BackpressureStrategy.BUFFER
             )
         )
 
-
-        val orientationPublishSubject =
-            PublishSubject.create<OrientationData>()
-        `when`(orientationProvider.getSensorUpdates()).thenReturn(
-            orientationPublishSubject.toFlowable(
-                BackpressureStrategy.BUFFER
+        val orientationPublishSubject = PublishSubject.create<OrientationData>()
+        `when`(orientationProvider.getSensorUpdates())
+            .thenReturn(orientationPublishSubject.toFlowable(BackpressureStrategy.BUFFER))
+        compassRepository.destinations = listOf(
+            LocationData(
+                51.782355138660385,
+                20.156112670898438
             )
         )
-        compassRepository.destination =
-            LocationData(51.782355138660385, 20.156112670898438)
         compassRepository.startCompass()
         locationPublishSubject.onNext(compassLocation)
 
@@ -270,28 +267,28 @@ class CompassRepositoryTest {
         orientationPublishSubject.onNext(azimuthData)
 
         var success = compassRepository.compassStateLiveData.value as Result.Success
-        assertEquals(19, success.data.currentDestinationAzimuth.roundToInt())
+        assertEquals(19, success.data.destinations[0].currentDestinationAzimuth.roundToInt())
 
         //2
         azimuthData = OrientationData(320f, 0f)
         orientationPublishSubject.onNext(azimuthData)
 
         success = compassRepository.compassStateLiveData.value as Result.Success
-        assertEquals(109, success.data.currentDestinationAzimuth.roundToInt())
+        assertEquals(109, success.data.destinations[0].currentDestinationAzimuth.roundToInt())
 
         //3
         azimuthData = OrientationData(0f, 0f)
         orientationPublishSubject.onNext(azimuthData)
 
         success = compassRepository.compassStateLiveData.value as Result.Success
-        assertEquals(69, success.data.currentDestinationAzimuth.roundToInt())
+        assertEquals(69, success.data.destinations[0].currentDestinationAzimuth.roundToInt())
 
         //4
         azimuthData = OrientationData(360f, 0f)
         orientationPublishSubject.onNext(azimuthData)
 
         success = compassRepository.compassStateLiveData.value as Result.Success
-        assertEquals(69, success.data.currentDestinationAzimuth.roundToInt())
+        assertEquals(69, success.data.destinations[0].currentDestinationAzimuth.roundToInt())
 
 
         //5
@@ -299,43 +296,43 @@ class CompassRepositoryTest {
         orientationPublishSubject.onNext(azimuthData)
 
         success = compassRepository.compassStateLiveData.value as Result.Success
-        assertEquals(269, success.data.currentDestinationAzimuth.roundToInt())
+        assertEquals(269, success.data.destinations[0].currentDestinationAzimuth.roundToInt())
 
 
         // II
         compassLocation =
             LocationData(51.782355138660385, 20.156112670898438)
         locationPublishSubject.onNext(compassLocation)
-        compassRepository.destination =
-            LocationData(51.70255082465981, 19.82147216796875)
+        compassRepository.destinations =
+            listOf(LocationData(51.70255082465981, 19.82147216796875))
 
         //1
         azimuthData = OrientationData(50f, 0f)
         orientationPublishSubject.onNext(azimuthData)
 
         success = compassRepository.compassStateLiveData.value as Result.Success
-        assertEquals(199, success.data.currentDestinationAzimuth.roundToInt())
+        assertEquals(199, success.data.destinations[0].currentDestinationAzimuth.roundToInt())
 
         //2
         azimuthData = OrientationData(320f, 0f)
         orientationPublishSubject.onNext(azimuthData)
 
         success = compassRepository.compassStateLiveData.value as Result.Success
-        assertEquals(289, success.data.currentDestinationAzimuth.roundToInt())
+        assertEquals(289, success.data.destinations[0].currentDestinationAzimuth.roundToInt())
 
         //3
         azimuthData = OrientationData(0f, 0f)
         orientationPublishSubject.onNext(azimuthData)
 
         success = compassRepository.compassStateLiveData.value as Result.Success
-        assertEquals(249, success.data.currentDestinationAzimuth.roundToInt())
+        assertEquals(249, success.data.destinations[0].currentDestinationAzimuth.roundToInt())
 
         //4
         azimuthData = OrientationData(360f, 0f)
         orientationPublishSubject.onNext(azimuthData)
 
         success = compassRepository.compassStateLiveData.value as Result.Success
-        assertEquals(249, success.data.currentDestinationAzimuth.roundToInt())
+        assertEquals(249, success.data.destinations[0].currentDestinationAzimuth.roundToInt())
 
 
         //5
@@ -343,6 +340,6 @@ class CompassRepositoryTest {
         orientationPublishSubject.onNext(azimuthData)
 
         success = compassRepository.compassStateLiveData.value as Result.Success
-        assertEquals(89, success.data.currentDestinationAzimuth.roundToInt())
+        assertEquals(89, success.data.destinations[0].currentDestinationAzimuth.roundToInt())
     }
 }

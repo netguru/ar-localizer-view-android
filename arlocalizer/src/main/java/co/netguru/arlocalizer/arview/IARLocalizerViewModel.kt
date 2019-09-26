@@ -13,7 +13,7 @@ internal interface IARLocalizerViewModel {
     val permissionState: LiveData<PermissionResult>
     fun startCompass()
     fun stopCompass()
-    fun setDestination(destination: LocationData)
+    fun setDestinations(destinations: List<LocationData>)
     fun setLowPassFilterAlpha(lowPassFilterAlpha: Float)
     fun onSaveInstanceState(bundle: Bundle)
     fun onRestoreInstanceState(bundle: Bundle)

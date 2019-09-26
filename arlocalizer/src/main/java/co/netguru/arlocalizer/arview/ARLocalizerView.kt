@@ -68,8 +68,8 @@ class ARLocalizerView @JvmOverloads constructor(
         viewModel.stopCompass()
     }
 
-    fun setDestination(destination: LocationData) {
-        viewModel.setDestination(destination)
+    fun setDestinations(destinations: List<LocationData>) {
+        viewModel.setDestinations(destinations)
     }
 
     private fun startCompass() {
