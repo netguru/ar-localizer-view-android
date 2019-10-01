@@ -57,7 +57,7 @@ internal class ARLabelView : View {
         private const val MAX_ALPHA_VALUE = 255f
     }
 
-    override fun onDraw(canvas: Canvas?) {
+    override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         arLabels
             ?.forEach {
@@ -65,7 +65,7 @@ internal class ARLabelView : View {
             }
     }
 
-    private fun drawArLabel(canvas: Canvas?, arLabelProperties: ARLabelProperties) {
+    private fun drawArLabel(canvas: Canvas, arLabelProperties: ARLabelProperties) {
 
         val labelText = "${arLabelProperties.distance} m"
         val textWidthHalf = textPaint.measureText(labelText) / 2
@@ -76,13 +76,13 @@ internal class ARLabelView : View {
         val right = arLabelProperties.positionX + textWidthHalf + TEXT_HORIZONTAL_PADDING
         val bottom = arLabelProperties.positionY + TEXT_VERTICAL_PADDING
 
-        canvas?.drawRoundRect(
+        canvas.drawRoundRect(
             left, top, right, bottom
             ,
             LABEL_CORNER_RADIUS,
             LABEL_CORNER_RADIUS, rectanglePaint.apply { alpha = arLabelProperties.alpha }
         )
-        canvas?.drawText(
+        canvas.drawText(
             labelText,
             arLabelProperties.positionX,
             arLabelProperties.positionY,
