@@ -21,6 +21,7 @@ internal class CompassRepository @Inject constructor(
 
     var destinationsLocation: List<LocationData> = listOf()
 
+    //TODO rework of the compassUpdates
     fun getCompassUpdates(): Flowable<CompassData> {
         orientationProvider.startSensorObservation()
         return locationProvider

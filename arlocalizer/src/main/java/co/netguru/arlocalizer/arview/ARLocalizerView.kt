@@ -57,30 +57,20 @@ class ARLocalizerView : FrameLayout, LifecycleObserver {
         checkPermissions()
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_START)
-    private fun onActivityStart() {
-        startCompass()
-    }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-    private fun onActivityStop() {
-        stopCompass()
-    }
-
-    private fun stopCompass() {
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    private fun onActivityDestroy() {
         ar_label_view.setLowPassFilterAlphaListener(null)
-        viewModel.stopCompass()
     }
 
     fun setDestinations(destinations: List<LocationData>) {
         viewModel.setDestinations(destinations)
     }
 
-    private fun startCompass() {
+    private fun observeCompassState() {
         ar_label_view.setLowPassFilterAlphaListener {
             viewModel.setLowPassFilterAlpha(it)
         }
-        viewModel.compassState.observe(
+        viewModel.compassState().observe(
             arLocalizerComponent.arLocalizerDependencyProvider().getARViewLifecycleOwner(),
             Observer { viewState ->
                 when (viewState) {
@@ -88,7 +78,6 @@ class ARLocalizerView : FrameLayout, LifecycleObserver {
                     is ViewState.Error -> showErrorDialog(viewState.message)
                 }
             })
-        viewModel.startCompass()
     }
 
     private fun checkPermissions() {
@@ -98,6 +87,7 @@ class ARLocalizerView : FrameLayout, LifecycleObserver {
                 when (permissionState) {
                     PermissionResult.GRANTED -> {
                         texture_view.post { startCameraPreview() }
+                        observeCompassState()
                     }
                     PermissionResult.SHOW_RATIONALE -> showRationaleSnackbar()
                     PermissionResult.NOT_GRANTED -> Unit
@@ -115,7 +105,6 @@ class ARLocalizerView : FrameLayout, LifecycleObserver {
             PreviewConfig.Builder().build(),
             texture_view
         )
-
         CameraX.bindToLifecycle(
             arLocalizerComponent.arLocalizerDependencyProvider().getARViewLifecycleOwner(),
             preview
@@ -127,7 +116,7 @@ class ARLocalizerView : FrameLayout, LifecycleObserver {
             .setTitle(R.string.error_title)
             .setMessage(resources.getString(R.string.error_message, message))
             .setPositiveButton(android.R.string.ok) { _, _ ->
-                startCompass()
+                observeCompassState()
             }
             .setNegativeButton(android.R.string.cancel) { _, _ ->
 

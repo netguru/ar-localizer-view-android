@@ -3,14 +3,13 @@ package co.netguru.arlocalizer.arview
 import android.os.Bundle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.toLiveData
 import co.netguru.arlocalizer.PermissionManager
 import co.netguru.arlocalizer.PermissionResult
 import co.netguru.arlocalizer.common.ViewState
 import co.netguru.arlocalizer.compass.CompassData
 import co.netguru.arlocalizer.compass.CompassRepository
 import co.netguru.arlocalizer.location.LocationData
-import io.reactivex.disposables.Disposable
-import io.reactivex.rxkotlin.subscribeBy
 import javax.inject.Inject
 
 internal class ARLocalizerViewModel @Inject constructor(
@@ -18,15 +17,11 @@ internal class ARLocalizerViewModel @Inject constructor(
     private val permissionManager: PermissionManager
 ) : IARLocalizerViewModel {
 
-    private var compassDispoable: Disposable? = null
-
     companion object {
         private const val LOCATION_DATA = "location_data"
         private const val UNEXPECTED_ERROR_MESSAGE = "Unexpected error"
     }
 
-    private val mutableCompassState: MutableLiveData<ViewState<CompassData>> = MutableLiveData()
-    override val compassState: LiveData<ViewState<CompassData>> = mutableCompassState
     override val permissionState: MutableLiveData<PermissionResult> = MutableLiveData()
 
     override fun setDestinations(destinations: List<LocationData>) {
@@ -34,25 +29,11 @@ internal class ARLocalizerViewModel @Inject constructor(
         compassRepository.destinationsLocation = destinations
     }
 
-    override fun startCompass() {
-        if (permissionManager.areAllPermissionsGranted()) {
-            compassDispoable = compassRepository.getCompassUpdates()
-                .subscribeBy(
-                    onNext = {
-                        mutableCompassState.postValue(ViewState.Success(it))
-                    },
-                    onError = {
-                        mutableCompassState.postValue(
-                            ViewState.Error(
-                                it.message ?: UNEXPECTED_ERROR_MESSAGE
-                            )
-                        )
-                    })
-        }
-    }
-
-    override fun stopCompass() {
-        compassDispoable?.dispose()
+    override fun compassState(): LiveData<ViewState<CompassData>> {
+        return compassRepository.getCompassUpdates()
+            .map<ViewState<CompassData>> { ViewState.Success(it) }
+            .onErrorReturn { ViewState.Error(it.localizedMessage ?: UNEXPECTED_ERROR_MESSAGE) }
+            .toLiveData()
     }
 
     override fun setLowPassFilterAlpha(lowPassFilterAlpha: Float) {
@@ -86,15 +67,8 @@ internal class ARLocalizerViewModel @Inject constructor(
     ) {
         val permissionResult =
             permissionManager.getPermissionsRequestResult(requestCode, grantResults)
-        when (permissionResult) {
-            PermissionResult.GRANTED ->
-                if (hasCompassNotStarted()) startCompass()
-            else -> Unit
-        }
         permissionState.postValue(
             permissionResult
         )
     }
-
-    private fun hasCompassNotStarted() = compassDispoable == null
 }

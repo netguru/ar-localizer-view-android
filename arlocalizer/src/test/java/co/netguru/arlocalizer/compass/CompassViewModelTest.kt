@@ -14,6 +14,7 @@ import io.reactivex.Flowable
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.mockito.ArgumentCaptor
 
 
 /**
@@ -32,6 +33,7 @@ class CompassViewModelTest {
     private val permissionManager: PermissionManager = mock()
     private val observer: Observer<ViewState<CompassData>> = mock()
     private val compassData: CompassData = mock()
+    private val argumentCaptor = ArgumentCaptor.forClass(ViewState::class.java)
 
     private val throwable = Throwable()
 
@@ -41,8 +43,6 @@ class CompassViewModelTest {
             compassRepository,
             permissionManager
         )
-        viewModel.compassState.observeForever(observer)
-
     }
 
     @Test
@@ -50,9 +50,10 @@ class CompassViewModelTest {
         whenever(permissionManager.areAllPermissionsGranted()).thenReturn(true)
         whenever(compassRepository.getCompassUpdates()).thenReturn(Flowable.just(compassData))
 
-        viewModel.startCompass()
+        viewModel.compassState().observeForever(observer)
 
-        assert(viewModel.compassState.value is ViewState.Success)
+        verify(observer).onChanged(argumentCaptor.capture() as ViewState<CompassData>?)
+        assert(argumentCaptor.allValues[0] is ViewState.Success)
     }
 
     @Test
@@ -60,29 +61,10 @@ class CompassViewModelTest {
         whenever(permissionManager.areAllPermissionsGranted()).thenReturn(true)
         whenever(compassRepository.getCompassUpdates()).thenReturn(Flowable.error(throwable))
 
-        viewModel.startCompass()
+        viewModel.compassState().observeForever(observer)
 
-        assert(viewModel.compassState.value is ViewState.Error)
-    }
-
-    @Test
-    fun `should not start updates when all permissions are not granted`() {
-        whenever(permissionManager.areAllPermissionsGranted()).thenReturn(false)
-        whenever(compassRepository.getCompassUpdates()).thenReturn(Flowable.just(compassData))
-
-        viewModel.startCompass()
-
-        assert(viewModel.compassState.value == null)
-    }
-
-    @Test
-    fun `should start updates when all permissions are granted`() {
-        whenever(permissionManager.areAllPermissionsGranted()).thenReturn(true)
-        whenever(compassRepository.getCompassUpdates()).thenReturn(Flowable.just(compassData))
-
-        viewModel.startCompass()
-
-        assert(viewModel.compassState.value != null)
+        verify(observer).onChanged(argumentCaptor.capture() as ViewState<CompassData>?)
+        assert(argumentCaptor.allValues[0] is ViewState.Error)
     }
 
     @Test
@@ -102,19 +84,5 @@ class CompassViewModelTest {
 
         verify(permissionManager, times(0)).requestAllPermissions()
         assert(viewModel.permissionState.value == PermissionResult.GRANTED)
-    }
-
-    @Test
-    fun `should get compass updated on successful permission check`() {
-        val requestCode = 0
-        val permissions: Array<out String> = arrayOf()
-        val grantResults: IntArray = intArrayOf()
-        whenever(compassRepository.getCompassUpdates()).thenReturn(Flowable.just(compassData))
-        whenever(permissionManager.getPermissionsRequestResult(requestCode, grantResults)).thenReturn(PermissionResult.GRANTED)
-        whenever(permissionManager.areAllPermissionsGranted()).thenReturn(true)
-
-        viewModel.onRequestPermissionResult(requestCode, permissions, grantResults)
-
-        verify(compassRepository).getCompassUpdates()
     }
 }
