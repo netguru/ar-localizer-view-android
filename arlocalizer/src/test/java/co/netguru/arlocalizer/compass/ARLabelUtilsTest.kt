@@ -131,11 +131,13 @@ class ARLabelUtilsTest {
         val currentPitch = 10f
         val nearestDestination = DestinationData(15f, 12, LocationData(54.2, 18.5))
         val furthestDestination = DestinationData(15f, 20, LocationData(54.2, 18.5))
-        val destinations = listOf(nearestDestination, furthestDestination)
-        val compassData = CompassData().apply {
-            this.destinations.addAll(destinations)
-            orientationData = OrientationData(0f, currentPitch)
-        }
+        val destinations = arrayListOf(nearestDestination, furthestDestination)
+        val compassData = CompassData(
+            OrientationData(0f, currentPitch), destinations,
+            0, 0, LocationData
+                (0.0, 0.0)
+        )
+
 
         val labelProperties =
             ARLabelUtils.prepareLabelsProperties(compassData, viewWidth, viewHeight)
@@ -154,12 +156,16 @@ class ARLabelUtilsTest {
 
     @Test
     fun `prepare and label properties with alpha set by distance`() {
-        val nearestDestination = DestinationData(15f, 12, LocationData(54.2, 18.5))
-        val furthestDestination = DestinationData(15f, 20, LocationData(54.2, 18.5))
-        val destinations = listOf(nearestDestination, furthestDestination)
-        val compassData = CompassData().apply {
-            this.destinations.addAll(destinations)
-        }
+        val minDistance = 12
+        val maxDistance = 20
+        val nearestDestination = DestinationData(0f, minDistance, LocationData(0.0, 0.0))
+        val furthestDestination = DestinationData(0f, maxDistance, LocationData(0.0, 0.0))
+        val destinations = arrayListOf(nearestDestination, furthestDestination)
+        val compassData = CompassData(
+            OrientationData(0f, 0f), destinations,
+            maxDistance, minDistance, LocationData
+                (0.0, 0.0)
+        )
 
         val labelProperties =
             ARLabelUtils.prepareLabelsProperties(compassData, viewWidth, viewHeight)

@@ -18,30 +18,34 @@ import co.netguru.arlocalizer.ARLocalizerDependencyProvider
 import co.netguru.arlocalizer.DaggerARLocalizerComponent
 import co.netguru.arlocalizer.PermissionResult
 import co.netguru.arlocalizer.R
+import co.netguru.arlocalizer.common.ViewState
 import co.netguru.arlocalizer.compass.CompassData
 import co.netguru.arlocalizer.location.LocationData
-import co.netguru.arlocalizer.common.ViewState
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.ar_localizer_layout.view.*
 
 
 @Suppress("UnusedPrivateMember", "TooManyFunctions")
-class ARLocalizerView @JvmOverloads constructor(
-    context: Context,
-    attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0
-) : FrameLayout(context, attrs, defStyleAttr), LifecycleObserver {
+class ARLocalizerView : FrameLayout, LifecycleObserver {
+
+    constructor(context: Context) : super(context)
+    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
+    constructor(context: Context, attrs: AttributeSet?, attributeSetId: Int) : super(
+        context,
+        attrs,
+        attributeSetId
+    )
+
+    init {
+        View.inflate(context, R.layout.ar_localizer_layout, this)
+    }
 
     private lateinit var viewModel: IARLocalizerViewModel
     private lateinit var arLocalizerComponent: ARLocalizerComponent
 
     companion object {
         private const val SAVED_STATE = "saved_state"
-    }
-
-    init {
-        View.inflate(context, R.layout.ar_localizer_layout, this)
     }
 
     fun onCreate(arLocalizerDependencyProvider: ARLocalizerDependencyProvider) {

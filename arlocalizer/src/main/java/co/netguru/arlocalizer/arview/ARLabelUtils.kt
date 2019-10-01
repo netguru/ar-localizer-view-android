@@ -89,10 +89,6 @@ internal object ARLabelUtils {
         compassData: CompassData, viewWidth: Int,
         viewHeight: Int
     ): List<ARLabelProperties> {
-        val maxDistance = compassData.destinations.maxBy { it.distanceToDestination }
-            ?.distanceToDestination ?: 0
-        val minDistance = compassData.destinations.minBy { it.distanceToDestination }
-            ?.distanceToDestination ?: 0
 
         return compassData.destinations
             .filter { shouldShowLabel(it.currentDestinationAzimuth) }
@@ -102,7 +98,11 @@ internal object ARLabelUtils {
                     destinationData.distanceToDestination,
                     calculatePositionX(destinationData.currentDestinationAzimuth, viewWidth),
                     calculatePositionY(compassData.orientationData.currentPitch, viewHeight),
-                    getAlphaValue(maxDistance, minDistance, destinationData.distanceToDestination),
+                    getAlphaValue(
+                        compassData.maxDistance,
+                        compassData.minDistance,
+                        destinationData.distanceToDestination
+                    ),
                     id = destinationData.destinationLocation.hashCode()
                 )
             }
@@ -126,18 +126,18 @@ internal object ARLabelUtils {
             PROPERTY_SIZE, 0,
             ANIMATED_VALUE_MAX_SIZE
         )
-        return ARLabelAnimationData().apply {
-            valueAnimator = ValueAnimator().apply {
-                setValues(propertySize)
-                duration = ANIMATION_DURATION
-                interpolator = AccelerateInterpolator(ACCELERATE_INTERPOLATOR_FACTOR)
-                addUpdateListener { animation ->
-                    animatedSize =
-                        animation.getAnimatedValue(PROPERTY_SIZE) as? Int ?: 0
-                }
-                start()
-            }
-        }
-    }
+        val arLabelAnimationData = ARLabelAnimationData(ValueAnimator().apply {
+            setValues(propertySize)
+            duration = ANIMATION_DURATION
+            interpolator = AccelerateInterpolator(ACCELERATE_INTERPOLATOR_FACTOR)
+            start()
+        })
 
+        arLabelAnimationData.valueAnimator?.addUpdateListener { animation ->
+            arLabelAnimationData.animatedSize =
+                animation.getAnimatedValue(PROPERTY_SIZE) as? Int ?: 0
+        }
+
+        return arLabelAnimationData
+    }
 }

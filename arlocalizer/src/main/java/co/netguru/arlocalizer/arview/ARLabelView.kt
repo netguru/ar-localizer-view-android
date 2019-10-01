@@ -15,9 +15,15 @@ import co.netguru.arlocalizer.compass.CompassData
 import kotlin.math.min
 
 
-internal class ARLabelView @JvmOverloads constructor(
-    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
-) : View(context, attrs, defStyleAttr) {
+internal class ARLabelView : View {
+
+    constructor(context: Context) : super(context)
+    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
+    constructor(context: Context, attrs: AttributeSet?, attributeSetId: Int) : super(
+        context,
+        attrs,
+        attributeSetId
+    )
 
     private var textPaint = Paint().apply {
         color = ContextCompat.getColor(context, R.color.ar_label_text)
@@ -147,12 +153,12 @@ internal class ARLabelView @JvmOverloads constructor(
         labelsThatShouldBeShown: List<ARLabelProperties>,
         labelsShownBefore: List<ARLabelProperties>
     ) {
-        labelsThatShouldBeShown.minus(labelsShownBefore)
+        labelsThatShouldBeShown
+            .filterNot { newlabel -> labelsShownBefore.any { oldLabel -> newlabel.id == oldLabel.id } }
             .forEach { newLabels ->
                 animators[newLabels.id] = getShowUpAnimation()
             }
     }
-
 
     fun setLowPassFilterAlphaListener(lowPassFilterAlphaListener: ((Float) -> Unit)?) {
         this.lowPassFilterAlphaListener = lowPassFilterAlphaListener

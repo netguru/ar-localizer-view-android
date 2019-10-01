@@ -1,13 +1,10 @@
 package co.netguru.arlocalizer.compass
 
-import androidx.lifecycle.MutableLiveData
-import co.netguru.arlocalizer.common.Result
 import co.netguru.arlocalizer.location.LocationData
 import co.netguru.arlocalizer.location.LocationProvider
 import co.netguru.arlocalizer.orientation.OrientationProvider
-import io.reactivex.disposables.Disposable
+import io.reactivex.Flowable
 import io.reactivex.rxkotlin.combineLatest
-import io.reactivex.rxkotlin.subscribeBy
 import javax.inject.Inject
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -22,44 +19,48 @@ internal class CompassRepository @Inject constructor(
         private const val MAXIMUM_ANGLE = 360
     }
 
-    private var compassDisposable: Disposable? = null
-    var destinations: List<LocationData> = listOf()
-    val compassStateLiveData = MutableLiveData<Result<CompassData>>()
+    var destinationsLocation: List<LocationData> = listOf()
 
-    fun startCompass() {
+    fun getCompassUpdates(): Flowable<CompassData> {
         orientationProvider.startSensorObservation()
-        compassDisposable = locationProvider
+        return locationProvider
             .getLocationUpdates()
             .combineLatest(orientationProvider.getSensorUpdates())
-            .subscribeBy(
-                onNext = { (currentLocation, currentOrientation) ->
-                    val compassData = CompassData().apply {
-                        this.currentLocation = currentLocation
-                        this.orientationData = currentOrientation
-                    }
-                    destinations.forEachIndexed { index, locationData ->
+            .flatMap { (currentLocation, currentOrientation) ->
+                val destinations = destinationsLocation
+                    .map {
                         handleDestination(
-                            compassData,
                             currentLocation,
-                            locationData,
-                            index,
+                            it,
                             currentOrientation.currentAzimuth
                         )
                     }
-                    compassStateLiveData.postValue(Result.Success(compassData))
-                }, onError = {
-                    compassStateLiveData.postValue(Result.Error(it))
-                }
-            )
+                val compassData = CompassData(
+                    currentOrientation,
+                    destinations,
+                    getMaxDistance(destinations),
+                    getMinDistance(destinations),
+                    currentLocation
+                )
+                Flowable.just(compassData)
+            }
+            .doOnCancel { orientationProvider.stopSensorObservation() }
+            .doOnTerminate { orientationProvider.stopSensorObservation() }
     }
 
+    private fun getMaxDistance(destinations: List<DestinationData>) =
+        destinations.maxBy { it.distanceToDestination }
+            ?.distanceToDestination ?: 0
+
+    private fun getMinDistance(destinations: List<DestinationData>) =
+        destinations.minBy { it.distanceToDestination }
+            ?.distanceToDestination ?: 0
+
     private fun handleDestination(
-        compassData: CompassData,
         currentLocation: LocationData,
         destinationLocation: LocationData,
-        index: Int,
         currentAzimuth: Float
-    ) {
+    ): DestinationData {
         val headingAngle = calculateHeadingAngle(currentLocation, destinationLocation)
 
         val currentDestinationAzimuth =
@@ -69,12 +70,11 @@ internal class CompassRepository @Inject constructor(
             currentLocation,
             destinationLocation
         )
-        compassData.destinations.add(
-            index, DestinationData(
-                currentDestinationAzimuth,
-                distanceToDestination,
-                destinationLocation
-            )
+
+        return DestinationData(
+            currentDestinationAzimuth,
+            distanceToDestination,
+            destinationLocation
         )
     }
 
@@ -90,13 +90,6 @@ internal class CompassRepository @Inject constructor(
 
         return (headingAngle + MAXIMUM_ANGLE) % MAXIMUM_ANGLE
     }
-
-    fun stopCompass() {
-        orientationProvider.stopSensorObservation()
-        compassDisposable?.dispose()
-    }
-
-    fun hasCompassStarted() = compassDisposable != null && compassDisposable?.isDisposed != true
 
     fun setLowPassFilterAlpha(lowPassFilterAlpha: Float) {
         orientationProvider.setLowPassFilterAlpha(lowPassFilterAlpha)

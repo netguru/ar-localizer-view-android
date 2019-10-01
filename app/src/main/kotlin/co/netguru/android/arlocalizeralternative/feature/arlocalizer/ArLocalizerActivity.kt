@@ -21,14 +21,14 @@ class ArLocalizerActivity : BaseActivity(), ARLocalizerDependencyProvider {
 
         setContentView(R.layout.activity_arlocalizer)
 
-        ar_localizer.onCreate(this)
+        arLocalizer.onCreate(this)
 
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        netguru_offices_button.setOnClickListener {
-            ar_localizer.setDestinations(getNetguruOffices())
+        netguruOfficesButton.setOnClickListener {
+            arLocalizer.setDestinations(getNetguruOffices())
         }
-        gdansk_points_button.setOnClickListener {
-            ar_localizer.setDestinations(getPointsAroundGdanskOffice())
+        gdanskPointsButton.setOnClickListener {
+            arLocalizer.setDestinations(getPointsAroundGdanskOffice())
         }
     }
 
@@ -44,9 +44,10 @@ class ArLocalizerActivity : BaseActivity(), ARLocalizerDependencyProvider {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        ar_localizer.onRequestPermissionResult(requestCode, permissions, grantResults)
+        arLocalizer.onRequestPermissionResult(requestCode, permissions, grantResults)
     }
 
+    //TODO delete when other source of data will be available
     @Suppress("MagicNumber")
     private fun getNetguruOffices(): List<LocationData>{
         return listOf(LocationData(52.401577, 16.894083), //Poznan
@@ -60,6 +61,7 @@ class ArLocalizerActivity : BaseActivity(), ARLocalizerDependencyProvider {
         )
     }
 
+    //TODO delete when other source of data will be available
     @Suppress("MagicNumber")
     private fun getPointsAroundGdanskOffice(): List<LocationData> {
         return listOf(LocationData(54.402406, 18.566460),

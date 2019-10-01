@@ -7,7 +7,7 @@
     >
 
     <co.netguru.arlocalizer.arview.ARLocalizerView
-        android:id="@+id/ar_localizer"
+        android:id="@+id/arLocalizer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         />
@@ -20,7 +20,7 @@
         >
 
         <Button
-            android:id="@+id/netguru_offices_button"
+            android:id="@+id/netguruOfficesButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -28,7 +28,7 @@
             />
 
         <Button
-            android:id="@+id/gdansk_points_button"
+            android:id="@+id/gdanskPointsButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"

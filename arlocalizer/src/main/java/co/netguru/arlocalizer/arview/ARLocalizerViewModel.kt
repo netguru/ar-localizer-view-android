@@ -3,14 +3,14 @@ package co.netguru.arlocalizer.arview
 import android.os.Bundle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
 import co.netguru.arlocalizer.PermissionManager
 import co.netguru.arlocalizer.PermissionResult
-import co.netguru.arlocalizer.common.Result
 import co.netguru.arlocalizer.common.ViewState
 import co.netguru.arlocalizer.compass.CompassData
 import co.netguru.arlocalizer.compass.CompassRepository
 import co.netguru.arlocalizer.location.LocationData
+import io.reactivex.disposables.Disposable
+import io.reactivex.rxkotlin.subscribeBy
 import javax.inject.Inject
 
 internal class ARLocalizerViewModel @Inject constructor(
@@ -18,36 +18,41 @@ internal class ARLocalizerViewModel @Inject constructor(
     private val permissionManager: PermissionManager
 ) : IARLocalizerViewModel {
 
+    private var compassDispoable: Disposable? = null
+
     companion object {
         private const val LOCATION_DATA = "location_data"
+        private const val UNEXPECTED_ERROR_MESSAGE = "Unexpected error"
     }
 
-    override val compassState: LiveData<ViewState<CompassData>> =
-        Transformations.map(compassRepository.compassStateLiveData) { compassDataResult: Result<CompassData> ->
-            when (compassDataResult) {
-                is Result.Success -> ViewState.Success(compassDataResult.data)
-                is Result.Error -> {
-                    stopCompass()
-                    ViewState.Error<CompassData>(
-                        compassDataResult.throwable.message ?: "Unexpected error"
-                    )
-                }
-            }
-        }
-
+    private val mutableCompassState: MutableLiveData<ViewState<CompassData>> = MutableLiveData()
+    override val compassState: LiveData<ViewState<CompassData>> = mutableCompassState
     override val permissionState: MutableLiveData<PermissionResult> = MutableLiveData()
 
     override fun setDestinations(destinations: List<LocationData>) {
         if (!permissionManager.areAllPermissionsGranted()) checkPermissions()
-        compassRepository.destinations = destinations
+        compassRepository.destinationsLocation = destinations
     }
 
     override fun startCompass() {
-        if (permissionManager.areAllPermissionsGranted()) compassRepository.startCompass()
+        if (permissionManager.areAllPermissionsGranted()) {
+            compassDispoable = compassRepository.getCompassUpdates()
+                .subscribeBy(
+                    onNext = {
+                        mutableCompassState.postValue(ViewState.Success(it))
+                    },
+                    onError = {
+                        mutableCompassState.postValue(
+                            ViewState.Error(
+                                it.message ?: UNEXPECTED_ERROR_MESSAGE
+                            )
+                        )
+                    })
+        }
     }
 
     override fun stopCompass() {
-        compassRepository.stopCompass()
+        compassDispoable?.dispose()
     }
 
     override fun setLowPassFilterAlpha(lowPassFilterAlpha: Float) {
@@ -55,14 +60,14 @@ internal class ARLocalizerViewModel @Inject constructor(
     }
 
     override fun onSaveInstanceState(bundle: Bundle) {
-        compassRepository.destinations.let {
+        compassRepository.destinationsLocation.let {
             bundle.putParcelableArrayList(LOCATION_DATA, ArrayList(it))
         }
     }
 
     override fun onRestoreInstanceState(bundle: Bundle) {
         (bundle.get(LOCATION_DATA) as? ArrayList<LocationData>)?.let {
-            compassRepository.destinations = it
+            compassRepository.destinationsLocation = it
         }
     }
 
@@ -83,11 +88,13 @@ internal class ARLocalizerViewModel @Inject constructor(
             permissionManager.getPermissionsRequestResult(requestCode, grantResults)
         when (permissionResult) {
             PermissionResult.GRANTED ->
-                if (!compassRepository.hasCompassStarted()) startCompass()
+                if (hasCompassNotStarted()) startCompass()
             else -> Unit
         }
         permissionState.postValue(
             permissionResult
         )
     }
+
+    private fun hasCompassNotStarted() = compassDispoable == null
 }
