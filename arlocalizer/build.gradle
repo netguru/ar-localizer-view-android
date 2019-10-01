@@ -3,6 +3,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'com.vanniktech.android.junit.jacoco'
+apply from: 'dependencies.gradle'
 android {
     compileSdkVersion 29
     buildToolsVersion "29.0.2"
@@ -69,6 +70,7 @@ dependencies {
 
     // KTX
     implementation libs.ktx
+    implementation libs.ktxReactiveStreams
 
     // Dagger
     implementation libs.dagger
