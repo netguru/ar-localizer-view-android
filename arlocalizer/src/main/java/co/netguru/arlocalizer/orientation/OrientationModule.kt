@@ -1,8 +1,8 @@
 package co.netguru.arlocalizer.orientation
 
-import android.content.Context
 import android.hardware.SensorManager
 import android.view.WindowManager
+import androidx.core.content.getSystemService
 import co.netguru.arlocalizer.ARLocalizerDependencyProvider
 import dagger.Module
 import dagger.Provides
@@ -12,17 +12,17 @@ internal class OrientationModule {
 
     @Provides
     internal fun provideOrientationProvider(
-        sensorManager: SensorManager?,
-        windowManager: WindowManager?
+        sensorManager: SensorManager,
+        windowManager: WindowManager
     ) = OrientationProvider(sensorManager, windowManager)
 
 
     @Provides
     internal fun provideSensorManager(arLocalizerDependencyProvider: ARLocalizerDependencyProvider) =
-        arLocalizerDependencyProvider.getSensorsContext().getSystemService(Context.SENSOR_SERVICE) as? SensorManager
+        requireNotNull(arLocalizerDependencyProvider.getSensorsContext().getSystemService<SensorManager>())
 
 
     @Provides
     internal fun providesWindowManager(arLocalizerDependencyProvider: ARLocalizerDependencyProvider) =
-        arLocalizerDependencyProvider.getSensorsContext().getSystemService(Context.WINDOW_SERVICE) as? WindowManager
+        requireNotNull(arLocalizerDependencyProvider.getSensorsContext().getSystemService<WindowManager>())
 }
