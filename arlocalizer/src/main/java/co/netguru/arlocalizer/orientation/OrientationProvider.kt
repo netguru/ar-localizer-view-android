@@ -21,15 +21,16 @@ import kotlin.math.sin
 
 
 @Suppress("MagicNumber")
-internal class OrientationProvider @Inject constructor(private val sensorManager: SensorManager?,
-private val windowManager: WindowManager?) {
+internal class OrientationProvider @Inject constructor(
+    private val sensorManager: SensorManager,
+    private val windowManager: WindowManager
+) {
 
     private var alpha = 0f
     private var lastCos = 0f
     private var lastSin = 0f
 
     private val orientationPublishSubject: PublishSubject<SensorEvent> = PublishSubject.create()
-
     private var sensorEventListener: SensorEventListener = object : SensorEventListener {
         override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
 
@@ -50,8 +51,8 @@ private val windowManager: WindowManager?) {
     }
 
     private fun registerListener() {
-        val rotationSensor = sensorManager?.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
-        sensorManager?.registerListener(
+        val rotationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
+        sensorManager.registerListener(
             sensorEventListener,
             rotationSensor,
             SensorManager.SENSOR_DELAY_GAME
@@ -63,8 +64,8 @@ private val windowManager: WindowManager?) {
             .doOnSubscribe { registerListener() }
             .observeOn(Schedulers.computation())
             .toFlowable(BackpressureStrategy.LATEST)
-            .doOnTerminate { sensorManager?.unregisterListener(sensorEventListener) }
-            .doOnCancel { sensorManager?.unregisterListener(sensorEventListener) }
+            .doOnTerminate { sensorManager.unregisterListener(sensorEventListener) }
+            .doOnCancel { sensorManager.unregisterListener(sensorEventListener) }
             .map { sensorEvent: SensorEvent -> handleSensorEvent(sensorEvent) }
     }
 
@@ -105,7 +106,7 @@ private val windowManager: WindowManager?) {
     private fun getProperAxis(): Pair<Int, Int> {
         val worldAxisX: Int
         val worldAxisY: Int
-        when (windowManager?.defaultDisplay?.rotation) {
+        when (windowManager.defaultDisplay?.rotation) {
             ROTATION_90 -> {
                 worldAxisX = SensorManager.AXIS_Z
                 worldAxisY = SensorManager.AXIS_MINUS_X
