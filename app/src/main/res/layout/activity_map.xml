@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fragment_container"
+    android:name="com.google.android.gms.maps.SupportMapFragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".feature.location.LocationActivity"
+    >
+
+    <co.netguru.arlocalizer.arview.ARLocalizerView
+        android:id="@+id/arLocalizer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="invisible"
+        />
+
+    <com.google.android.gms.maps.MapView
+        android:id="@+id/mapView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="invisible"
+        />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/backToMapButton"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/back_to_map_button_height"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="@dimen/default_margin"
+        android:background="@drawable/transparent_button_bg"
+        android:drawableStart="@drawable/back_to_map_icon"
+        android:drawablePadding="@dimen/default_padding"
+        android:padding="@dimen/default_padding"
+        android:text="@string/return_to_map_button_label"
+        android:textAllCaps="false"
+        android:textColor="@color/map_button_bg_color"
+        android:visibility="invisible"
+        />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/arViewIcon"
+        android:layout_width="@dimen/ar_view_button_size"
+        android:layout_height="@dimen/ar_view_button_size"
+        android:layout_gravity="end"
+        android:layout_margin="@dimen/ar_view_button_size"
+        app:srcCompat="@drawable/ar_view_icon"
+        android:visibility="invisible"
+        />
+
+    <LinearLayout
+        android:id="@+id/locationButtons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="@dimen/default_margin"
+        android:visibility="invisible"
+        >
+
+        <Button
+            android:id="@+id/netguruOfficesButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/netguru_offices_label"
+            />
+
+        <Button
+            android:id="@+id/gdanskPointsButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_weight="1"
+            android:text="@string/gdansk_office_label"
+            />
+
+    </LinearLayout>
+
+</FrameLayout>

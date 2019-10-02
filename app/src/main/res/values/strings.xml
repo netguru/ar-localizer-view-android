@@ -11,4 +11,5 @@
     <string name="longitude_error">Longitude value should be between -180 an 180</string>
     <string name="empty_value_error">Value should not be empty</string>
     <string name="azimuth_between_locations_label">Azimuth between locations</string>
+    <string name="return_to_map_button_label">Return to the map view</string>
 </resources>

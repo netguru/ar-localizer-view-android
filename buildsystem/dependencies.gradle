@@ -51,6 +51,7 @@ ext {
             cameraXCore             : "androidx.camera:camera-core:$camerax_version",
             camera2                 : "androidx.camera:camera-camera2:$camerax_version",
             playServicesLocation    : "com.google.android.gms:play-services-location:17.0.0",
+            playServicesMaps        : "com.google.android.gms:play-services-maps:17.0.0",
             rxLocation              : "com.patloew.rxlocation:rxlocation:1.0.5",
             materialComponents      : "com.google.android.material:material:1.0.0",
     ]

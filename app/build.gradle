@@ -186,6 +186,11 @@ dependencies {
     kapt proc.daggerAndroid
     compileOnly proc.javaxAnnotation
 
+    //Location
+    implementation libs.playServicesLocation
+    implementation libs.playServicesMaps
+    implementation libs.appCompat
+
     //RxJava
     implementation libs.rxJava2
     implementation(libs.rxKotlin2) {
