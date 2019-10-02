@@ -23,7 +23,6 @@ internal class CompassRepository @Inject constructor(
 
     //TODO rework of the compassUpdates
     fun getCompassUpdates(): Flowable<CompassData> {
-        orientationProvider.startSensorObservation()
         return locationProvider
             .getLocationUpdates()
             .combineLatest(orientationProvider.getSensorUpdates())
@@ -45,8 +44,6 @@ internal class CompassRepository @Inject constructor(
                 )
                 Flowable.just(compassData)
             }
-            .doOnCancel { orientationProvider.stopSensorObservation() }
-            .doOnTerminate { orientationProvider.stopSensorObservation() }
     }
 
     private fun getMaxDistance(destinations: List<DestinationData>) =

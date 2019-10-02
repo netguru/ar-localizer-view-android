@@ -28,7 +28,7 @@ private val windowManager: WindowManager?) {
     private var lastCos = 0f
     private var lastSin = 0f
 
-    private lateinit var orientationPublishSubject: PublishSubject<SensorEvent>
+    private val orientationPublishSubject: PublishSubject<SensorEvent> = PublishSubject.create()
 
     private var sensorEventListener: SensorEventListener = object : SensorEventListener {
         override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
@@ -49,32 +49,22 @@ private val windowManager: WindowManager?) {
         }
     }
 
-    companion object {
-        private const val SENSORS_ERROR = "Sensors are not available"
-    }
-
-    private fun isSensorAvailable(sensorType: Int) =
-        sensorManager?.getDefaultSensor(sensorType) != null
-
-    fun startSensorObservation() {
-        orientationPublishSubject = PublishSubject.create()
-        if (!isSensorAvailable(Sensor.TYPE_ROTATION_VECTOR)) {
-            orientationPublishSubject.onError(Throwable(SENSORS_ERROR))
-            return
-        }
+    private fun registerListener() {
         val rotationSensor = sensorManager?.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
-
-        sensorManager?.registerListener(sensorEventListener, rotationSensor, SensorManager.SENSOR_DELAY_GAME)
-    }
-
-    fun stopSensorObservation() {
-        sensorManager?.unregisterListener(sensorEventListener)
+        sensorManager?.registerListener(
+            sensorEventListener,
+            rotationSensor,
+            SensorManager.SENSOR_DELAY_GAME
+        )
     }
 
     fun getSensorUpdates(): Flowable<OrientationData> {
         return orientationPublishSubject.subscribeOn(Schedulers.computation())
+            .doOnSubscribe { registerListener() }
             .observeOn(Schedulers.computation())
             .toFlowable(BackpressureStrategy.LATEST)
+            .doOnTerminate { sensorManager?.unregisterListener(sensorEventListener) }
+            .doOnCancel { sensorManager?.unregisterListener(sensorEventListener) }
             .map { sensorEvent: SensorEvent -> handleSensorEvent(sensorEvent) }
     }
 
