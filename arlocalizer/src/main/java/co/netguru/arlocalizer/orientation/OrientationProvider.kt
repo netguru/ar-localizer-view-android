@@ -11,8 +11,8 @@ import android.view.Surface.ROTATION_90
 import android.view.WindowManager
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
+import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
-import io.reactivex.subjects.PublishSubject
 import timber.log.Timber
 import javax.inject.Inject
 import kotlin.math.atan2
@@ -30,42 +30,38 @@ internal class OrientationProvider @Inject constructor(
     private var lastCos = 0f
     private var lastSin = 0f
 
-    private val orientationPublishSubject: PublishSubject<SensorEvent> = PublishSubject.create()
-    private var sensorEventListener: SensorEventListener = object : SensorEventListener {
-        override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+    private val orientationPublishObservable: Observable<SensorEvent> =
+        Observable.create { emitter ->
+            val sensorEventListener = object : SensorEventListener {
+                override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) =
+                    when (sensor?.type) {
+                        Sensor.TYPE_ROTATION_VECTOR -> when (accuracy) {
+                            SensorManager.SENSOR_STATUS_ACCURACY_LOW -> Timber.d("ACCURACY low")
+                            SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM -> Timber.d("ACCURACY medium")
+                            SensorManager.SENSOR_STATUS_ACCURACY_HIGH -> Timber.d("ACCURACY high")
+                            else -> Unit
+                        }
+                        else -> Unit
+                    }
 
-            when (sensor?.type) {
-                Sensor.TYPE_ROTATION_VECTOR -> when (accuracy) {
-                    SensorManager.SENSOR_STATUS_ACCURACY_LOW -> Timber.d("ACCURACY low")
-                    SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM -> Timber.d("ACCURACY medium")
-                    SensorManager.SENSOR_STATUS_ACCURACY_HIGH -> Timber.d("ACCURACY high")
+                override fun onSensorChanged(event: SensorEvent?) {
+                    if (event != null) emitter.onNext(event)
                 }
-                else -> {
-                }
+            }
+            sensorManager.registerListener(
+                sensorEventListener,
+                sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR),
+                SensorManager.SENSOR_DELAY_GAME
+            )
+            emitter.setCancellable {
+                sensorManager.unregisterListener(sensorEventListener)
             }
         }
 
-        override fun onSensorChanged(event: SensorEvent?) {
-            if (event != null) orientationPublishSubject.onNext(event)
-        }
-    }
-
-    private fun registerListener() {
-        val rotationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
-        sensorManager.registerListener(
-            sensorEventListener,
-            rotationSensor,
-            SensorManager.SENSOR_DELAY_GAME
-        )
-    }
-
     fun getSensorUpdates(): Flowable<OrientationData> {
-        return orientationPublishSubject.subscribeOn(Schedulers.computation())
-            .doOnSubscribe { registerListener() }
+        return orientationPublishObservable.subscribeOn(Schedulers.computation())
             .observeOn(Schedulers.computation())
             .toFlowable(BackpressureStrategy.LATEST)
-            .doOnTerminate { sensorManager.unregisterListener(sensorEventListener) }
-            .doOnCancel { sensorManager.unregisterListener(sensorEventListener) }
             .map { sensorEvent: SensorEvent -> handleSensorEvent(sensorEvent) }
     }
 
@@ -131,6 +127,7 @@ internal class OrientationProvider @Inject constructor(
         return Pair(worldAxisX, worldAxisY)
     }
 
+    //TODO export alpha from OrientationProvider
     fun setLowPassFilterAlpha(lowPassFilterAlpha: Float) {
         alpha = lowPassFilterAlpha
     }
