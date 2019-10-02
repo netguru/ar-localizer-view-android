@@ -3,6 +3,7 @@ ext {
     daggerVersion = '2.24'
     stethoVersion = '1.5.1'
     lifecycleVersion = "2.0.0"
+    espressoVersion = '3.2.0'
     camerax_version = "1.0.0-alpha04"
 
     libs = [
@@ -11,6 +12,8 @@ ext {
             annotations             : "androidx.annotation:annotation:1.1.0",
             lifecycleExtensions     : "androidx.lifecycle:lifecycle-extensions:$lifecycleVersion",
             ktx                     : "androidx.core:core-ktx:1.0.2",
+            ktxViewModel            : "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion",
+            ktxReactiveStreams      : "androidx.lifecycle:lifecycle-reactivestreams-ktx:2.1.0",
             rxJava2                 : "io.reactivex.rxjava2:rxjava:2.2.11",
             rxKotlin2               : "io.reactivex.rxjava2:rxkotlin:2.4.0",
             rxAndroid2              : "io.reactivex.rxjava2:rxandroid:2.1.1",

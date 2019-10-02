@@ -18,30 +18,34 @@ import co.netguru.arlocalizer.ARLocalizerDependencyProvider
 import co.netguru.arlocalizer.DaggerARLocalizerComponent
 import co.netguru.arlocalizer.PermissionResult
 import co.netguru.arlocalizer.R
+import co.netguru.arlocalizer.common.ViewState
 import co.netguru.arlocalizer.compass.CompassData
 import co.netguru.arlocalizer.location.LocationData
-import co.netguru.arlocalizer.common.ViewState
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.ar_localizer_layout.view.*
 
 
 @Suppress("UnusedPrivateMember", "TooManyFunctions")
-class ARLocalizerView @JvmOverloads constructor(
-    context: Context,
-    attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0
-) : FrameLayout(context, attrs, defStyleAttr), LifecycleObserver {
+class ARLocalizerView : FrameLayout, LifecycleObserver {
+
+    constructor(context: Context) : super(context)
+    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
+    constructor(context: Context, attrs: AttributeSet?, attributeSetId: Int) : super(
+        context,
+        attrs,
+        attributeSetId
+    )
+
+    init {
+        View.inflate(context, R.layout.ar_localizer_layout, this)
+    }
 
     private lateinit var viewModel: IARLocalizerViewModel
     private lateinit var arLocalizerComponent: ARLocalizerComponent
 
     companion object {
         private const val SAVED_STATE = "saved_state"
-    }
-
-    init {
-        View.inflate(context, R.layout.ar_localizer_layout, this)
     }
 
     fun onCreate(arLocalizerDependencyProvider: ARLocalizerDependencyProvider) {
@@ -53,30 +57,20 @@ class ARLocalizerView @JvmOverloads constructor(
         checkPermissions()
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_START)
-    private fun onActivityStart() {
-        startCompass()
-    }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-    private fun onActivityStop() {
-        stopCompass()
-    }
-
-    private fun stopCompass() {
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    private fun onActivityDestroy() {
         ar_label_view.setLowPassFilterAlphaListener(null)
-        viewModel.stopCompass()
     }
 
-    fun setDestination(destination: LocationData) {
-        viewModel.setDestination(destination)
+    fun setDestinations(destinations: List<LocationData>) {
+        viewModel.setDestinations(destinations)
     }
 
-    private fun startCompass() {
+    private fun observeCompassState() {
         ar_label_view.setLowPassFilterAlphaListener {
             viewModel.setLowPassFilterAlpha(it)
         }
-        viewModel.compassState.observe(
+        viewModel.compassState().observe(
             arLocalizerComponent.arLocalizerDependencyProvider().getARViewLifecycleOwner(),
             Observer { viewState ->
                 when (viewState) {
@@ -84,7 +78,6 @@ class ARLocalizerView @JvmOverloads constructor(
                     is ViewState.Error -> showErrorDialog(viewState.message)
                 }
             })
-        viewModel.startCompass()
     }
 
     private fun checkPermissions() {
@@ -94,6 +87,7 @@ class ARLocalizerView @JvmOverloads constructor(
                 when (permissionState) {
                     PermissionResult.GRANTED -> {
                         texture_view.post { startCameraPreview() }
+                        observeCompassState()
                     }
                     PermissionResult.SHOW_RATIONALE -> showRationaleSnackbar()
                     PermissionResult.NOT_GRANTED -> Unit
@@ -111,7 +105,6 @@ class ARLocalizerView @JvmOverloads constructor(
             PreviewConfig.Builder().build(),
             texture_view
         )
-
         CameraX.bindToLifecycle(
             arLocalizerComponent.arLocalizerDependencyProvider().getARViewLifecycleOwner(),
             preview
@@ -123,7 +116,7 @@ class ARLocalizerView @JvmOverloads constructor(
             .setTitle(R.string.error_title)
             .setMessage(resources.getString(R.string.error_message, message))
             .setPositiveButton(android.R.string.ok) { _, _ ->
-                startCompass()
+                observeCompassState()
             }
             .setNegativeButton(android.R.string.cancel) { _, _ ->
 

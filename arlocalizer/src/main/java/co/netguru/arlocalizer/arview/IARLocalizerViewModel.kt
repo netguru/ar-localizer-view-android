@@ -9,11 +9,9 @@ import co.netguru.arlocalizer.location.LocationData
 
 
 internal interface IARLocalizerViewModel {
-    val compassState: LiveData<ViewState<CompassData>>
     val permissionState: LiveData<PermissionResult>
-    fun startCompass()
-    fun stopCompass()
-    fun setDestination(destination: LocationData)
+    fun compassState(): LiveData<ViewState<CompassData>>
+    fun setDestinations(destinations: List<LocationData>)
     fun setLowPassFilterAlpha(lowPassFilterAlpha: Float)
     fun onSaveInstanceState(bundle: Bundle)
     fun onRestoreInstanceState(bundle: Bundle)

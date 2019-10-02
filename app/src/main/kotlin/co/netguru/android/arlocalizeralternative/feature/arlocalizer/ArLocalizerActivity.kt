@@ -1,14 +1,11 @@
 package co.netguru.android.arlocalizeralternative.feature.arlocalizer
 
-import android.app.AlertDialog
 import android.os.Bundle
-import android.view.View
 import android.view.WindowManager
 import co.netguru.android.arlocalizeralternative.R
 import co.netguru.android.arlocalizeralternative.common.base.BaseActivity
 import co.netguru.arlocalizer.ARLocalizerDependencyProvider
-import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
+import co.netguru.arlocalizer.location.LocationData
 import kotlinx.android.synthetic.main.activity_arlocalizer.*
 import javax.inject.Inject
 
@@ -24,11 +21,14 @@ class ArLocalizerActivity : BaseActivity(), ARLocalizerDependencyProvider {
 
         setContentView(R.layout.activity_arlocalizer)
 
-        ar_localizer.onCreate(this)
+        arLocalizer.onCreate(this)
 
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        set_destination_button.setOnClickListener {
-            onDestinationButtonClick()
+        netguruOfficesButton.setOnClickListener {
+            arLocalizer.setDestinations(getNetguruOffices())
+        }
+        gdanskPointsButton.setOnClickListener {
+            arLocalizer.setDestinations(getPointsAroundGdanskOffice())
         }
     }
 
@@ -38,75 +38,37 @@ class ArLocalizerActivity : BaseActivity(), ARLocalizerDependencyProvider {
 
     override fun getPermissionActivity() = this
 
-    private fun onDestinationButtonClick() {
-        showDestinationDialog()
-    }
-
-    private fun showDestinationDialog() {
-        val view = View.inflate(this, R.layout.destination_dialog, null)
-        val latitudeEditText = view.findViewById<TextInputEditText>(R.id.latitude_edit_text)
-        val longitudeEditText = view.findViewById<TextInputEditText>(R.id.longitude_edit_text)
-        val latitudeTextInputLayout =
-            view.findViewById<TextInputLayout>(R.id.latitude_text_input_layout)
-        val longitudeTextInputLayout =
-            view.findViewById<TextInputLayout>(R.id.longitude_text_input_layout)
-        val dialog = AlertDialog.Builder(this)
-            .setView(view)
-            .setCancelable(false)
-            .setPositiveButton(android.R.string.ok, null)
-            .setNegativeButton(android.R.string.cancel, null)
-            .create()
-        dialog.show()
-
-        /*setting OnClick after dialog was created in order to not close the dialog instantly after user pressed
-          the button*/
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-            validateDestinationInput(
-                latitudeEditText.text.toString().toDoubleOrNull(),
-                longitudeEditText.text.toString().toDoubleOrNull(),
-                latitudeTextInputLayout,
-                longitudeTextInputLayout,
-                dialog
-            )
-        }
-    }
-
-    @Suppress("UnsafeCast")
-    private fun validateDestinationInput(
-        latitude: Double?, longitude: Double?, latitudeTextInputLayout: TextInputLayout,
-        longitudeTextInputLayout: TextInputLayout, dialog: AlertDialog
-    ) {
-        when (locationValidator.validateValue(latitude, CoordinateType.LATITUDE)) {
-            ValidationResult.CORRECT_VALUE -> latitudeTextInputLayout.isErrorEnabled = false
-            ValidationResult.WRONG_VALUE -> latitudeTextInputLayout.error =
-                resources.getString(R.string.latitude_error)
-            ValidationResult.EMPTY_VALUE -> latitudeTextInputLayout.error =
-                resources.getString(R.string.empty_value_error)
-        }
-        when (locationValidator.validateValue(longitude, CoordinateType.LONGITUDE)) {
-            ValidationResult.CORRECT_VALUE -> longitudeTextInputLayout.isErrorEnabled = false
-            ValidationResult.WRONG_VALUE -> longitudeTextInputLayout.error =
-                resources.getString(R.string.longitude_error)
-            ValidationResult.EMPTY_VALUE -> longitudeTextInputLayout.error =
-                resources.getString(R.string.empty_value_error)
-        }
-        if (!longitudeTextInputLayout.isErrorEnabled && !latitudeTextInputLayout.isErrorEnabled) {
-            ar_localizer.setDestination(
-                co.netguru.arlocalizer.location.LocationData(
-                    latitude as Double,
-                    longitude as Double
-                )
-            )
-            dialog.dismiss()
-        }
-    }
-
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        ar_localizer.onRequestPermissionResult(requestCode, permissions, grantResults)
+        arLocalizer.onRequestPermissionResult(requestCode, permissions, grantResults)
+    }
+
+    //TODO delete when other source of data will be available
+    @Suppress("MagicNumber")
+    private fun getNetguruOffices(): List<LocationData>{
+        return listOf(LocationData(52.401577, 16.894083), //Poznan
+            LocationData(52.239028, 20.995217), //Warszawa
+            LocationData(50.069789, 19.945363), //Krakow
+            LocationData(51.109812, 17.036580), //Wroclaw
+            LocationData(54.402996, 18.569637), //Gdansk
+            LocationData(53.128046, 23.172515), //Bialystok
+            LocationData(50.259024, 19.019853), //Katowice
+            LocationData(51.760939, 19.462599) //Lodz
+        )
+    }
+
+    //TODO delete when other source of data will be available
+    @Suppress("MagicNumber")
+    private fun getPointsAroundGdanskOffice(): List<LocationData> {
+        return listOf(LocationData(54.402406, 18.566460),
+            LocationData(54.401329, 18.570768),
+            LocationData(54.403628, 18.573376),
+            LocationData(54.405395, 18.566331),
+            LocationData(54.400593, 18.571689)
+        )
     }
 }

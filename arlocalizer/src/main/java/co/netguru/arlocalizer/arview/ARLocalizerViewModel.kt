@@ -3,10 +3,9 @@ package co.netguru.arlocalizer.arview
 import android.os.Bundle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.toLiveData
 import co.netguru.arlocalizer.PermissionManager
 import co.netguru.arlocalizer.PermissionResult
-import co.netguru.arlocalizer.common.Result
 import co.netguru.arlocalizer.common.ViewState
 import co.netguru.arlocalizer.compass.CompassData
 import co.netguru.arlocalizer.compass.CompassRepository
@@ -20,34 +19,21 @@ internal class ARLocalizerViewModel @Inject constructor(
 
     companion object {
         private const val LOCATION_DATA = "location_data"
+        private const val UNEXPECTED_ERROR_MESSAGE = "Unexpected error"
     }
-
-    override val compassState: LiveData<ViewState<CompassData>> =
-        Transformations.map(compassRepository.compassStateLiveData) { compassDataResult: Result<CompassData> ->
-            when (compassDataResult) {
-                is Result.Success -> ViewState.Success(compassDataResult.data)
-                is Result.Error -> {
-                    stopCompass()
-                    ViewState.Error<CompassData>(
-                        compassDataResult.throwable.message ?: "Unexpected error"
-                    )
-                }
-            }
-        }
 
     override val permissionState: MutableLiveData<PermissionResult> = MutableLiveData()
 
-    override fun setDestination(destination: LocationData) {
+    override fun setDestinations(destinations: List<LocationData>) {
         if (!permissionManager.areAllPermissionsGranted()) checkPermissions()
-        compassRepository.destination = destination
+        compassRepository.destinationsLocation = destinations
     }
 
-    override fun startCompass() {
-        if (permissionManager.areAllPermissionsGranted()) compassRepository.startCompass()
-    }
-
-    override fun stopCompass() {
-        compassRepository.stopCompass()
+    override fun compassState(): LiveData<ViewState<CompassData>> {
+        return compassRepository.getCompassUpdates()
+            .map<ViewState<CompassData>> { ViewState.Success(it) }
+            .onErrorReturn { ViewState.Error(it.localizedMessage ?: UNEXPECTED_ERROR_MESSAGE) }
+            .toLiveData()
     }
 
     override fun setLowPassFilterAlpha(lowPassFilterAlpha: Float) {
@@ -55,14 +41,14 @@ internal class ARLocalizerViewModel @Inject constructor(
     }
 
     override fun onSaveInstanceState(bundle: Bundle) {
-        compassRepository.destination?.let {
-            bundle.putParcelable(LOCATION_DATA, it)
+        compassRepository.destinationsLocation.let {
+            bundle.putParcelableArrayList(LOCATION_DATA, ArrayList(it))
         }
     }
 
     override fun onRestoreInstanceState(bundle: Bundle) {
-        (bundle.get(LOCATION_DATA) as? LocationData)?.let {
-            compassRepository.destination = it
+        (bundle.get(LOCATION_DATA) as? ArrayList<LocationData>)?.let {
+            compassRepository.destinationsLocation = it
         }
     }
 
@@ -81,11 +67,6 @@ internal class ARLocalizerViewModel @Inject constructor(
     ) {
         val permissionResult =
             permissionManager.getPermissionsRequestResult(requestCode, grantResults)
-        when (permissionResult) {
-            PermissionResult.GRANTED ->
-                if (!compassRepository.hasCompassStarted()) startCompass()
-            else -> Unit
-        }
         permissionState.postValue(
             permissionResult
         )

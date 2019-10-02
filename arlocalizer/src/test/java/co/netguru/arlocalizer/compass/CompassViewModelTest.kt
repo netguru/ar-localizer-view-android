@@ -1,18 +1,20 @@
 package co.netguru.arlocalizer.compass
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import co.netguru.arlocalizer.PermissionManager
+import co.netguru.arlocalizer.PermissionResult
 import co.netguru.arlocalizer.arview.ARLocalizerViewModel
-import co.netguru.arlocalizer.common.Result
 import co.netguru.arlocalizer.common.ViewState
+import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockito_kotlin.times
+import com.nhaarman.mockito_kotlin.verify
+import com.nhaarman.mockito_kotlin.whenever
+import io.reactivex.Flowable
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.Mock
-import org.mockito.Mockito.`when`
-import org.mockito.Mockito.verify
-import org.mockito.MockitoAnnotations
+import org.mockito.ArgumentCaptor
 
 
 /**
@@ -27,46 +29,60 @@ class CompassViewModelTest {
 
     private lateinit var viewModel: ARLocalizerViewModel
 
-    @Mock
-    internal lateinit var compassRepository: CompassRepository
-    @Mock
-    internal lateinit var permissionManager: co.netguru.arlocalizer.PermissionManager
-    @Mock
-    internal lateinit var observer: Observer<ViewState<CompassData>>
+    private val compassRepository: CompassRepository = mock()
+    private val permissionManager: PermissionManager = mock()
+    private val observer: Observer<ViewState<CompassData>> = mock()
+    private val compassData: CompassData = mock()
+    private val argumentCaptor = ArgumentCaptor.forClass(ViewState::class.java)
 
-    private val compassStateLiveData = MutableLiveData<Result<CompassData>>()
-    private val compassData = CompassData()
     private val throwable = Throwable()
 
     @Before
     fun setup() {
-        MockitoAnnotations.initMocks(this)
-        `when`(compassRepository.compassStateLiveData).thenReturn(compassStateLiveData)
         viewModel = ARLocalizerViewModel(
             compassRepository,
             permissionManager
         )
-        viewModel.compassState.observeForever(observer)
     }
 
     @Test
     fun `should return viewState success on success result`() {
-        compassStateLiveData.value = Result.Success(compassData)
+        whenever(permissionManager.areAllPermissionsGranted()).thenReturn(true)
+        whenever(compassRepository.getCompassUpdates()).thenReturn(Flowable.just(compassData))
 
-        assert(viewModel.compassState.value is ViewState.Success)
+        viewModel.compassState().observeForever(observer)
+
+        verify(observer).onChanged(argumentCaptor.capture() as ViewState<CompassData>?)
+        assert(argumentCaptor.allValues[0] is ViewState.Success)
     }
 
     @Test
     fun `should return viewState error on error result`() {
-        compassStateLiveData.value = Result.Error(throwable)
+        whenever(permissionManager.areAllPermissionsGranted()).thenReturn(true)
+        whenever(compassRepository.getCompassUpdates()).thenReturn(Flowable.error(throwable))
 
-        assert(viewModel.compassState.value is ViewState.Error)
+        viewModel.compassState().observeForever(observer)
+
+        verify(observer).onChanged(argumentCaptor.capture() as ViewState<CompassData>?)
+        assert(argumentCaptor.allValues[0] is ViewState.Error)
     }
 
     @Test
-    fun `should stop location and sensor observation on error result`() {
-        compassStateLiveData.value = Result.Error(throwable)
+    fun `should request permissions on permissionsCheck when they are not granted`() {
+        whenever(permissionManager.areAllPermissionsGranted()).thenReturn(false)
 
-        verify(compassRepository).stopCompass()
+        viewModel.checkPermissions()
+
+        verify(permissionManager).requestAllPermissions()
+    }
+
+    @Test
+    fun `should not request permissions on permissionsCheck when they are granted`() {
+        whenever(permissionManager.areAllPermissionsGranted()).thenReturn(true)
+
+        viewModel.checkPermissions()
+
+        verify(permissionManager, times(0)).requestAllPermissions()
+        assert(viewModel.permissionState.value == PermissionResult.GRANTED)
     }
 }
