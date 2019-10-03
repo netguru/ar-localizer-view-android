@@ -7,7 +7,7 @@ ext {
     camerax_version = "1.0.0-alpha04"
 
     libs = [
-            kotlin                  : "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion",
+            kotlin                  : "org.jetbrains.kotlin:kotlin-stdlib:$versions.kotlin",
             appCompat               : "androidx.appcompat:appcompat:1.1.0",
             annotations             : "androidx.annotation:annotation:1.1.0",
             lifecycleExtensions     : "androidx.lifecycle:lifecycle-extensions:$lifecycleVersion",
