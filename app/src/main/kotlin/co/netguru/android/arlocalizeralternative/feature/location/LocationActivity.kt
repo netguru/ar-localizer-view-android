@@ -44,19 +44,6 @@ open class LocationActivity : BaseActivity(), ARLocalizerDependencyProvider {
     private val markers: MutableList<Marker> = mutableListOf()
     private var changeModeTransitionAnimation = false
 
-    companion object {
-        private const val VIEW_MODE_TRANSITION_ANIMATION_DURATION = 500L
-        private const val MOVE_TO_LOCATION_ZOOM = 15f
-        private const val CAMERA_BOUNDS_PADDING = 150
-        private const val LATITUDE_ANIMATION_PROPERTY = "latitude_property"
-        private const val LONGITUDE_ANIMATION_PROPERTY = "longitude_property"
-        private const val DROP_MARKER_ANIMATION_POSITION_Y_OFFSET = 100
-        private const val DROP_MARKER_ANIMATION_DURATION_INIT_VALUE = 200
-        private const val DROP_MARKER_ANIMATION_DURATION_FACTOR = 0.6
-        private const val DROP_MARKER_ANIMATION_DELAY = 500L
-        private const val LOCATION_PERMISSION_REQUEST = 456
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
@@ -330,4 +317,17 @@ open class LocationActivity : BaseActivity(), ARLocalizerDependencyProvider {
     override fun getSensorsContext() = this
     override fun getARViewLifecycleOwner() = this
     override fun getPermissionActivity() = this
+
+    companion object {
+        private const val VIEW_MODE_TRANSITION_ANIMATION_DURATION = 500L
+        private const val MOVE_TO_LOCATION_ZOOM = 15f
+        private const val CAMERA_BOUNDS_PADDING = 150
+        private const val LATITUDE_ANIMATION_PROPERTY = "latitude_property"
+        private const val LONGITUDE_ANIMATION_PROPERTY = "longitude_property"
+        private const val DROP_MARKER_ANIMATION_POSITION_Y_OFFSET = 100
+        private const val DROP_MARKER_ANIMATION_DURATION_INIT_VALUE = 200
+        private const val DROP_MARKER_ANIMATION_DURATION_FACTOR = 0.6
+        private const val DROP_MARKER_ANIMATION_DELAY = 500L
+        private const val LOCATION_PERMISSION_REQUEST = 456
+    }
 }
