@@ -163,8 +163,6 @@ dependencies {
 
     // Support
     implementation libs.appCompat
-    implementation libs.recyclerView
-    implementation libs.materialComponents
     implementation libs.constraintLayout
 
     // ViewModels LiveData
@@ -173,7 +171,6 @@ dependencies {
 
     // KTX
     implementation libs.ktx
-    implementation libs.ktxFragment
 
     //ARLocalizer library
     implementation project(":arlocalizer")
@@ -200,13 +197,6 @@ dependencies {
     implementation(libs.rxAndroid2) {
         exclude module: 'rxjava'
     }
-
-    // OkHttp + Retrofit
-    implementation libs.okHttp
-    implementation libs.okHttpLoggingInterceptor
-    implementation libs.retrofit
-    implementation libs.retrofitGsonConverter
-    implementation libs.retrofitRxJava2Adapter
 
     // Timber
     implementation libs.timber
