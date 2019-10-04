@@ -4,16 +4,20 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'com.vanniktech.android.junit.jacoco'
 apply from: 'dependencies.gradle'
-android {
-    compileSdkVersion 29
-    buildToolsVersion "29.0.2"
 
+def versionMajor = 0
+def versionMinor = 1
+def versionPatch = 0
+
+android {
+    compileSdkVersion versions.compileSdk
+    buildToolsVersion versions.buildTools
 
     defaultConfig {
-        minSdkVersion 21
-        targetSdkVersion 29
+        minSdkVersion versions.minSdk
+        targetSdkVersion versions.targetSdk
         versionCode 1
-        versionName "1.0"
+        versionName "${versionMajor}.${versionMinor}.${versionPatch}"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles 'consumer-rules.pro'
@@ -107,3 +111,4 @@ dependencies {
     testImplementation test.mockitoKotlin
     testImplementation test.archTesting
 }
+apply from: 'publish.gradle'

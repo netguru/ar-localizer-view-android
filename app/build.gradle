@@ -18,12 +18,12 @@ ext {
 }
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion versions.compileSdk
 
     defaultConfig {
         applicationId "co.netguru.android.arlocalizeralternative"
-        minSdkVersion 21
-        targetSdkVersion 28
+        minSdkVersion versions.minSdk
+        targetSdkVersion versions.targetSdk
         versionCode isBitrise ? Integer.parseInt(bitrise.io.buildNumber) : 1
         versionName '0.1.0'
 

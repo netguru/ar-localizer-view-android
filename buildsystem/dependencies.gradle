@@ -12,7 +12,7 @@ ext {
     camerax_version = "1.0.0-alpha04"
 
     libs = [
-            kotlin                  : "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion",
+            kotlin                  : "org.jetbrains.kotlin:kotlin-stdlib:$versions.kotlin",
             ankoCommons             : "org.jetbrains.anko:anko-commons:$ankoVersion",
             ankoCommonsSupportV7    : "org.jetbrains.anko:anko-appcompat-v7-commons:$ankoVersion",
             ankoCommonsSupportV4    : "org.jetbrains.anko:anko-support-v4-commons:$ankoVersion",

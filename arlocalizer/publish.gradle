@@ -1,0 +1,30 @@
+ext {
+    bintrayRepo = 'maven'
+
+    bintrayName = 'ArLocalizer'
+    artifact = 'arlocalizer'
+    artifactGroupName = 'arlocalizer'
+    packageName = 'com.netguru'
+    libraryVersion = android.defaultConfig.versionName
+    publishedGroupId = "$packageName.$artifactGroupName"
+    libraryName = 'ArLocalizer'
+    libraryDescription = '**ArLocalizerx** is an open-source library providing view that shows destinations' +
+            'on camera preview using location and mobile phone sensors.\n'
+    // repo
+    siteUrl = 'https://github.com/netguru/ar-localizer-alternative-android'
+    gitUrl = 'https://github.com/netguru/ar-localizer-alternative-android'
+
+    // leave
+    developerId = 'netguru'
+    developerName = 'netguru'
+    developerEmail = 'android@netguru.pl'
+
+    licenseName = 'The Apache Software License, Version 2.0'
+    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+    allLicenses = ["Apache-2.0"]
+}
+
+apply from: 'install.gradle'
+apply from: 'bintray.gradle'
+
+println "\nuploading '$publishedGroupId:$artifact:$libraryVersion' ...\n"
