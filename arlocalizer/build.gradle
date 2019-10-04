@@ -3,7 +3,6 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'com.vanniktech.android.junit.jacoco'
-apply from: 'dependencies.gradle'
 
 def versionMajor = 0
 def versionMinor = 1
