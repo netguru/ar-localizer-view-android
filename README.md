@@ -1,4 +1,5 @@
 [![Build Status](https://app.bitrise.io/app/02902760b64f29d8/status.svg?token=xLpAoK3SOS0sGo60ASKW-Q&branch=master)](https://app.bitrise.io/app/02902760b64f29d8)
+[![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=netguru/ar-localizer-alternative-android&identifier=207792749)](https://dependabot.com)
 
 # Ar Localizer - alternative(without ARCore)
 
