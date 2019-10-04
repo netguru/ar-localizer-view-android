@@ -19,7 +19,7 @@ ext {
             appCompat               : "androidx.appcompat:appcompat:1.1.0",
             recyclerView            : "androidx.recyclerview:recyclerview:1.0.0",
             cardView                : "androidx.cardview:cardview:1.0.0",
-            mediaRouter             : "androidx.mediarouter:mediarouter:1.0.0",
+            mediaRouter             : "androidx.mediarouter:mediarouter:1.1.0",
             preference              : "androidx.preference:preference:1.0.0",
             annotations             : "androidx.annotation:annotation:1.1.0",
             constraintLayout        : "androidx.constraintlayout:constraintlayout:1.1.3",
