@@ -32,15 +32,15 @@ You need to provide api key in secret.properties file.
 ## Using library
 <!-- description of steps how to implement the library -->
 
-1. Add jcenter() repository in you projects build.gradle file 
-
+1. Add repository in you projects build.gradle file 
+   
     ```gradle
-      repositories {
-            jcenter()
-            ...
-        }
-    ```    
-
+    repositories {
+        maven {  url 'https://dl.bintray.com/netguru/maven/' }
+        ...
+    }
+    ```
+    
 2. Add library dependency 
 
     ```gradle
