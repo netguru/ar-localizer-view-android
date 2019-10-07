@@ -4,18 +4,16 @@ version = libraryVersion
 
 task sourcesJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs
-    getArchiveClassifier().set('sources')
+    classifier = 'sources'
 }
 
 task javadoc(type: Javadoc) {
-    excludes = ['**/*.kt']
     source = android.sourceSets.main.java.srcDirs
     classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
-    excludes = ['**/*.kt']
-    getArchiveClassifier().set('javadoc')
+    classifier = 'javadoc'
     from javadoc.destinationDir
 }
 artifacts {
