@@ -9,7 +9,7 @@
     tools:context=".feature.location.LocationActivity"
     >
 
-    <co.netguru.arlocalizer.arview.ARLocalizerView
+    <com.netguru.arlocalizerview.arview.ARLocalizerView
         android:id="@+id/arLocalizer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

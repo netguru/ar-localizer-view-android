@@ -1,18 +1,18 @@
 ext {
     bintrayRepo = 'maven'
 
-    bintrayName = 'ArLocalizer'
-    artifact = 'arlocalizer'
-    artifactGroupName = 'arlocalizer'
+    bintrayName = 'ArLocalizerView'
+    artifact = 'arlocalizerview'
+    artifactGroupName = 'arlocalizerview'
     packageName = 'com.netguru'
     libraryVersion = android.defaultConfig.versionName
     publishedGroupId = "$packageName.$artifactGroupName"
-    libraryName = 'ArLocalizer'
-    libraryDescription = '**ArLocalizerx** is an open-source library providing view that shows destinations' +
+    libraryName = 'ArLocalizerView'
+    libraryDescription = '**ArLocalizerView** is an open-source library providing view that shows destinations' +
             'on camera preview using location and mobile phone sensors.\n'
     // repo
-    siteUrl = 'https://github.com/netguru/ar-localizer-alternative-android'
-    gitUrl = 'https://github.com/netguru/ar-localizer-alternative-android'
+    siteUrl = 'https://github.com/netguru/ar-localizer-view-android'
+    gitUrl = 'https://github.com/netguru/ar-localizer-view-android'
 
     // leave
     developerId = 'netguru'
