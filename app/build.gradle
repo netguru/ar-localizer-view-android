@@ -173,7 +173,7 @@ dependencies {
     implementation libs.ktx
 
     //ARLocalizer library
-    implementation project(":arlocalizer")
+    implementation project(':arlocalizerview')
 
     // Dagger
     implementation libs.dagger

@@ -1,1 +1,1 @@
-include ':app', ':arlocalizer'
+include ':app', ':arlocalizerview'
