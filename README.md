@@ -46,7 +46,7 @@ You need to provide api key in secret.properties file.
 
     ```gradle
         dependencies {
-                implementation 'com.netguru.arlocalizer:arlocalizer:0.1.0'
+                implementation 'com.netguru.arlocalizerview:arlocalizerview:0.1.0'
         }
     ```
     
