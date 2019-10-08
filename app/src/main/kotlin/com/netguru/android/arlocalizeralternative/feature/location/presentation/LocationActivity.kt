@@ -1,4 +1,4 @@
-package com.netguru.android.arlocalizeralternative.feature.location
+package com.netguru.android.arlocalizeralternative.feature.location.presentation
 
 import android.Manifest
 import android.animation.Animator
@@ -16,19 +16,18 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.get
-import com.netguru.android.arlocalizeralternative.R
-import com.netguru.android.arlocalizeralternative.common.base.BaseActivity
-import com.netguru.arlocalizerview.ARLocalizerDependencyProvider
-import com.netguru.arlocalizerview.location.LocationData
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
-import kotlinx.android.synthetic.main.activity_map.*
+import com.netguru.android.arlocalizeralternative.R
+import com.netguru.android.arlocalizeralternative.common.base.BaseActivity
+import com.netguru.arlocalizerview.ARLocalizerDependencyProvider
+import com.netguru.arlocalizerview.location.LocationData
+import kotlinx.android.synthetic.main.activity_location.*
 import javax.inject.Inject
 
 
@@ -36,7 +35,7 @@ open class LocationActivity : BaseActivity(), ARLocalizerDependencyProvider {
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
-    private val mapViewModel by lazy {
+    private val locationViewModel by lazy {
         ViewModelProviders.of(this, viewModelFactory).get<LocationViewModel>()
     }
 
@@ -48,7 +47,7 @@ open class LocationActivity : BaseActivity(), ARLocalizerDependencyProvider {
         setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.activity_map)
+        setContentView(R.layout.activity_location)
 
         arLocalizer.onCreate(this)
         mapView.addToLifecycle(lifecycle, savedInstanceState)
@@ -59,20 +58,16 @@ open class LocationActivity : BaseActivity(), ARLocalizerDependencyProvider {
     private fun setupButtons() {
         arViewIcon.setOnClickListener {
             changeModeTransitionAnimation = true
-            mapViewModel.arModeClick()
+            locationViewModel.arModeClick()
         }
 
         backToMapButton.setOnClickListener {
             changeModeTransitionAnimation = true
-            mapViewModel.mapModeClick()
+            locationViewModel.mapModeClick()
         }
 
-        netguruOfficesButton.setOnClickListener {
-            mapViewModel.handleDestinations(getNetguruOffices())
-        }
-
-        gdanskPointsButton.setOnClickListener {
-            mapViewModel.handleDestinations(getPointsAroundGdanskOffice())
+        findAtmButton.setOnClickListener {
+            locationViewModel.showATMinTheArea(googleMap.projection.visibleRegion.latLngBounds)
         }
     }
 
@@ -102,24 +97,27 @@ open class LocationActivity : BaseActivity(), ARLocalizerDependencyProvider {
         mapView.getMapAsync { googleMap ->
             this.googleMap = googleMap
             setupObservers()
-            mapViewModel.onMapReady()
             styleMap(googleMap)
         }
     }
 
     private fun setupObservers() {
-        mapViewModel.location.observe(this, Observer { location ->
+        locationViewModel.locationLiveData.observe(this, Observer { location ->
             moveToLocation(location)
         })
-        mapViewModel.destinations.observe(this, Observer { destinations ->
+        locationViewModel.destinations.observe(this, Observer { destinations ->
             arLocalizer.setDestinations(destinations)
             showDestinationsOnMap(destinations)
         })
-        mapViewModel.viewMode.observe(this, Observer { viewMode ->
+        locationViewModel.viewMode.observe(this, Observer { viewMode ->
             when (viewMode) {
                 ViewMode.ARMode -> handleArMode()
                 ViewMode.MapMode -> handleMapMode()
             }
+        })
+        locationViewModel.loading.observe(this, Observer {
+            googleMap.uiSettings.isScrollGesturesEnabled = !it
+            loadingProgress.isVisible = it
         })
     }
 
@@ -128,7 +126,6 @@ open class LocationActivity : BaseActivity(), ARLocalizerDependencyProvider {
         val latLngDestinations = destinations
             .map { LatLng(it.latitude, it.longitude) }
 
-        fitMapToMarkers(latLngDestinations)
         latLngDestinations
             .forEach {
                 addMarker(it)
@@ -172,7 +169,7 @@ open class LocationActivity : BaseActivity(), ARLocalizerDependencyProvider {
 
     private fun setMapGroupVisibility(show: Boolean) {
         arViewIcon.isVisible = show
-        locationButtons.isVisible = show
+        findAtmButton.isVisible = show
 
         animateView(show, mapView)
     }
@@ -206,33 +203,6 @@ open class LocationActivity : BaseActivity(), ARLocalizerDependencyProvider {
         )
     }
 
-    //TODO delete when other source of data will be available
-    @Suppress("MagicNumber")
-    private fun getNetguruOffices(): List<LocationData> {
-        return listOf(
-            LocationData(52.401577, 16.894083), //Poznan
-            LocationData(52.239028, 20.995217), //Warszawa
-            LocationData(50.069789, 19.945363), //Krakow
-            LocationData(51.109812, 17.036580), //Wroclaw
-            LocationData(54.402996, 18.569637), //Gdansk
-            LocationData(53.128046, 23.172515), //Bialystok
-            LocationData(50.259024, 19.019853), //Katowice
-            LocationData(51.760939, 19.462599) //Lodz
-        )
-    }
-
-    //TODO delete when other source of data will be available
-    @Suppress("MagicNumber")
-    private fun getPointsAroundGdanskOffice(): List<LocationData> {
-        return listOf(
-            LocationData(54.402406, 18.566460),
-            LocationData(54.401329, 18.570768),
-            LocationData(54.403628, 18.573376),
-            LocationData(54.405395, 18.566331),
-            LocationData(54.400593, 18.571689)
-        )
-    }
-
     private fun addMarker(
         position: LatLng
     ) {
@@ -244,21 +214,8 @@ open class LocationActivity : BaseActivity(), ARLocalizerDependencyProvider {
             }
 
         val pinnedMarker = googleMap.addMarker(markerOptions)
-        startDropMarkerAnimation(pinnedMarker, googleMap)
         markers.add(pinnedMarker)
-    }
-
-    private fun fitMapToMarkers(destinations: List<LatLng>) {
-        val boundBuilder = LatLngBounds.Builder()
-
-        destinations.forEach { position ->
-            boundBuilder.include(position)
-        }
-
-        val bounds = boundBuilder.build()
-        val cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, CAMERA_BOUNDS_PADDING)
-
-        googleMap.moveCamera(cameraUpdate)
+        startDropMarkerAnimation(pinnedMarker, googleMap)
     }
 
     private fun startDropMarkerAnimation(
@@ -321,7 +278,6 @@ open class LocationActivity : BaseActivity(), ARLocalizerDependencyProvider {
     companion object {
         private const val VIEW_MODE_TRANSITION_ANIMATION_DURATION = 500L
         private const val MOVE_TO_LOCATION_ZOOM = 15f
-        private const val CAMERA_BOUNDS_PADDING = 150
         private const val LATITUDE_ANIMATION_PROPERTY = "latitude_property"
         private const val LONGITUDE_ANIMATION_PROPERTY = "longitude_property"
         private const val DROP_MARKER_ANIMATION_POSITION_Y_OFFSET = 100

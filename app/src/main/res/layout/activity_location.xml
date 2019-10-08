@@ -6,7 +6,7 @@
     android:name="com.google.android.gms.maps.SupportMapFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".feature.location.LocationActivity"
+    tools:context=".feature.location.presentation.LocationActivity"
     >
 
     <com.netguru.arlocalizerview.arview.ARLocalizerView
@@ -25,13 +25,14 @@
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/backToMapButton"
-        android:layout_width="wrap_content"
-        android:layout_height="@dimen/back_to_map_button_height"
+        android:layout_width="@dimen/map_buttons_width"
+        android:layout_height="@dimen/map_buttons_height"
         android:layout_gravity="bottom|center_horizontal"
         android:layout_marginBottom="@dimen/default_margin"
-        android:background="@drawable/transparent_button_bg"
+        android:background="@drawable/map_button_bg"
         android:drawableStart="@drawable/back_to_map_icon"
         android:drawablePadding="@dimen/default_padding"
+        android:foreground="?android:attr/selectableItemBackground"
         android:padding="@dimen/default_padding"
         android:text="@string/return_to_map_button_label"
         android:textAllCaps="false"
@@ -45,36 +46,32 @@
         android:layout_height="@dimen/ar_view_button_size"
         android:layout_gravity="end"
         android:layout_margin="@dimen/ar_view_button_size"
+        android:visibility="invisible"
         app:srcCompat="@drawable/ar_view_icon"
+        />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/findAtmButton"
+        android:layout_width="@dimen/map_buttons_width"
+        android:layout_height="@dimen/map_buttons_height"
+        android:layout_gravity="center|bottom"
+        android:layout_marginBottom="@dimen/default_margin"
+        android:background="@drawable/find_atm_button_bg"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:padding="@dimen/default_padding"
+        android:text="@string/find_atm_label"
+        android:textAllCaps="false"
+        android:textColor="@color/find_atm_button_bg_color"
         android:visibility="invisible"
         />
 
-    <LinearLayout
-        android:id="@+id/locationButtons"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:layout_marginBottom="@dimen/default_margin"
+    <androidx.core.widget.ContentLoadingProgressBar
+        android:id="@+id/loadingProgress"
+        android:layout_width="@dimen/progress_bar_size"
+        android:layout_height="@dimen/progress_bar_size"
+        android:layout_gravity="center"
         android:visibility="invisible"
-        >
-
-        <Button
-            android:id="@+id/netguruOfficesButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/netguru_offices_label"
-            />
-
-        <Button
-            android:id="@+id/gdanskPointsButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:layout_weight="1"
-            android:text="@string/gdansk_office_label"
-            />
-
-    </LinearLayout>
+        style="?android:attr/progressBarStyleLarge"
+        android:indeterminateTint="@color/colorAccent"/>
 
 </FrameLayout>

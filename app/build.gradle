@@ -171,9 +171,17 @@ dependencies {
 
     // KTX
     implementation libs.ktx
+    implementation libs.ktxReactiveStreams
 
     //ARLocalizer library
     implementation 'com.netguru.arlocalizerview:arlocalizerview:0.1.0'
+
+    // OkHttp + Retrofit
+    implementation libs.okHttp
+    implementation libs.okHttpLoggingInterceptor
+    implementation libs.retrofit
+    implementation libs.retrofitGsonConverter
+    implementation libs.retrofitRxJava2Adapter
 
     // Dagger
     implementation libs.dagger
@@ -203,6 +211,7 @@ dependencies {
 
     // Stetho
     debugImplementation libs.stetho
+    debugImplementation libs.stethoOkhttp
 
     // LeakCanary
     debugImplementation libs.leakCanary
