@@ -1,10 +1,12 @@
 package com.netguru.android.arlocalizeralternative.injection.data
 
-import com.facebook.stetho.okhttp3.StethoInterceptor
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.netguru.android.arlocalizeralternative.injection.NetworkInterceptor
+import com.netguru.android.arlocalizeralternative.injection.NetworkDebugModule
 import dagger.Module
 import dagger.Provides
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import retrofit2.CallAdapter
 import retrofit2.Retrofit
@@ -14,14 +16,16 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
 
-@Module
+@Module(includes = [NetworkDebugModule::class])
 class NetworkModule {
 
     @Provides
-    fun provideOkHttp(): OkHttpClient = OkHttpClient.Builder()
-        .addNetworkInterceptor(StethoInterceptor())
-        .readTimeout(TIMEOUT, TimeUnit.SECONDS)
-        .build()
+    fun provideOkHttp(@NetworkInterceptor networkInterceptors: Set<@JvmSuppressWildcards Interceptor>)
+            : OkHttpClient =
+        OkHttpClient.Builder()
+            .addNetworkInterceptors(networkInterceptors)
+            .readTimeout(TIMEOUT, TimeUnit.SECONDS)
+            .build()
 
     @Provides
     @Singleton
@@ -53,6 +57,12 @@ class NetworkModule {
         .baseUrl(BASE_URL)
         .client(okHttpClient)
         .build()
+
+    private fun OkHttpClient.Builder.addNetworkInterceptors(interceptors: Collection<Interceptor>)
+            : OkHttpClient.Builder =
+        apply {
+            interceptors.forEach { addNetworkInterceptor(it) }
+        }
 
     companion object {
         private const val TIMEOUT = 25L
