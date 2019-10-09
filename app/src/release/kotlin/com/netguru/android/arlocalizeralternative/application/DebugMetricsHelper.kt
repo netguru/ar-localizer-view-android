@@ -1,4 +1,4 @@
-package co.netguru.android.arlocalizeralternative.application
+package com.netguru.android.arlocalizeralternative.application
 
 import android.content.Context
 import javax.inject.Singleton
