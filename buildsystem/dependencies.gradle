@@ -6,7 +6,7 @@ ext {
     okHttpVersion = '4.0.1'
     retrofitVersion = '2.6.1'
     lifecycleVersion = "2.1.0"
-    camerax_version = "1.0.0-alpha04"
+    camerax_version = "1.0.0-alpha06"
 
     libs = [
             kotlin                  : "org.jetbrains.kotlin:kotlin-stdlib:$versions.kotlin",
