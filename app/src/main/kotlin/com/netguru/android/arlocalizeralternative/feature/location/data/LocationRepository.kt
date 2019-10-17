@@ -35,7 +35,8 @@ class LocationRepository @Inject constructor(
     }
 
     override fun getDestinations(
-        amenity: String, southWestLatitude: Double,
+        amenity: String,
+        southWestLatitude: Double,
         southWestLongitude: Double,
         northeastLatitude: Double,
         northeastLongitude: Double

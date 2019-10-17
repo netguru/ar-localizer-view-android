@@ -17,7 +17,8 @@ import javax.inject.Inject
 
 class LocationViewModel @Inject constructor(
     private val atmUseCase: AtmUseCase,
-    currentLocationUseCase: CurrentLocationUseCase) :
+    currentLocationUseCase: CurrentLocationUseCase
+) :
     ViewModel() {
 
     val locationLiveData = currentLocationUseCase.getCurrentLocation().toFlowable().toLiveData()

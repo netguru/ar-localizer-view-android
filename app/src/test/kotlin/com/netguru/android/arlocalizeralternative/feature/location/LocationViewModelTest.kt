@@ -48,10 +48,7 @@ class LocationViewModelTest {
     @Before
     fun init() {
         whenever(currentLocationUseCase.getCurrentLocation()).thenReturn(Single.just(currentLocation))
-        viewModel =
-            LocationViewModel(
-                atmUseCase, currentLocationUseCase
-            )
+        viewModel = LocationViewModel(atmUseCase, currentLocationUseCase)
         viewModel.destinations.observeForever(destinationObserver)
         viewModel.viewMode.observeForever(viewModeObserver)
     }

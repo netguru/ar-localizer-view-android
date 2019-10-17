@@ -6,7 +6,8 @@ import io.reactivex.Single
 
 interface ILocationRepository {
     fun getDestinations(
-        amenity: String, southWestLatitude: Double,
+        amenity: String,
+        southWestLatitude: Double,
         southWestLongitude: Double,
         northeastLatitude: Double,
         northeastLongitude: Double
