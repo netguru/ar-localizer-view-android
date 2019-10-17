@@ -4,6 +4,7 @@
     >
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
         android:name="com.netguru.android.arlocalizeralternative.application.App"
@@ -19,7 +20,7 @@
             />
 
         <activity
-            android:name="com.netguru.android.arlocalizeralternative.feature.location.LocationActivity"
+            android:name="com.netguru.android.arlocalizeralternative.feature.location.presentation.LocationActivity"
             android:theme="@style/SplashTheme"
             >
             <intent-filter>

@@ -1,4 +1,4 @@
-package com.netguru.android.arlocalizeralternative.feature
+package com.netguru.android.arlocalizeralternative.injection.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider

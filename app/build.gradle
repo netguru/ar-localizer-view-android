@@ -53,38 +53,6 @@ android {
         }
     }
 
-    flavorDimensions "api"
-
-    productFlavors {
-        mock {
-            versionNameSuffix "-MOCK"
-            applicationIdSuffix ".mock"
-            dimension "api"
-
-            // put your secrets in the BuildConfig.java class, for example:
-            // buildConfigField 'String', 'HOCKEY_APP_ID', "\"${secrets.hockeyAppId}\""
-        }
-        production {
-            dimension "api"
-            // inherit
-        }
-    }
-
-    variantFilter { variant ->
-        def buildName = variant.buildType.name
-        def flavorName = variant.getFlavors().get(0).name
-        // remove unnecessary variants
-        ['release'].each {
-            if (buildName == it) {
-                ['mock'].each {
-                    if (flavorName == it) {
-                        variant.setIgnore(true)
-                    }
-                }
-            }
-        }
-    }
-
     // Always show the result of every unit test, even if it passes.
     testOptions.unitTests.all {
         testLogging {
@@ -171,9 +139,17 @@ dependencies {
 
     // KTX
     implementation libs.ktx
+    implementation libs.ktxReactiveStreams
 
     //ARLocalizer library
     implementation 'com.netguru.arlocalizerview:arlocalizerview:0.1.0'
+
+    // OkHttp + Retrofit
+    implementation libs.okHttp
+    implementation libs.okHttpLoggingInterceptor
+    implementation libs.retrofit
+    implementation libs.retrofitGsonConverter
+    implementation libs.retrofitRxJava2Adapter
 
     // Dagger
     implementation libs.dagger
@@ -203,6 +179,7 @@ dependencies {
 
     // Stetho
     debugImplementation libs.stetho
+    debugImplementation libs.stethoOkhttp
 
     // LeakCanary
     debugImplementation libs.leakCanary

@@ -1,4 +1,4 @@
-package com.netguru.android.arlocalizeralternative.feature.location
+package com.netguru.android.arlocalizeralternative.feature.location.presentation
 
 import android.os.Bundle
 import androidx.lifecycle.Lifecycle

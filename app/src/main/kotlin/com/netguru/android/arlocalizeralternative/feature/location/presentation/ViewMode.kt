@@ -1,4 +1,4 @@
-package com.netguru.android.arlocalizeralternative.feature.location
+package com.netguru.android.arlocalizeralternative.feature.location.presentation
 
 sealed class ViewMode {
     object ARMode: ViewMode()
