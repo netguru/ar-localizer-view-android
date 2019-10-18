@@ -3,7 +3,7 @@ ext {
     daggerVersion = '2.24'
     stethoVersion = '1.5.1'
     ankoVersion = '0.10.8'
-    okHttpVersion = '4.0.1'
+    okHttpVersion = '4.2.2'
     retrofitVersion = '2.6.1'
     lifecycleVersion = "2.1.0"
     camerax_version = "1.0.0-alpha04"
