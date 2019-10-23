@@ -1,6 +1,6 @@
 ext {
     // Versions
-    daggerVersion = '2.24'
+    daggerVersion = '2.25'
     stethoVersion = '1.5.1'
     ankoVersion = '0.10.8'
     okHttpVersion = '4.0.1'
